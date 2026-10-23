@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Elite Journey — Concept Prototype</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --red:#a50000; --red-dark:#7d0000; --red-soft:#c93a3a;
+    --ink:#191414; --ink2:#4a3f3f; --mut:#8a7a7a;
+    --ivory:#fdf9f4; --blush:#f9efef; --blush2:#f3e2e2; --line:#ecdcdc;
+    --card:#ffffff; --ok:#2e7d4f;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  body{
+    font-family:"Plus Jakarta Sans",system-ui,sans-serif; color:var(--ink);
+    background:radial-gradient(1200px 700px at 20% -10%, #f6e3e3 0%, transparent 55%),
+               radial-gradient(1000px 600px at 110% 110%, #f3e2e2 0%, transparent 50%),
+               #f7f0ea;
+    min-height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center;
+    padding:34px 14px 26px;
+  }
+  /* ---------- phone frame ---------- */
+  .phone{
+    width:100%; max-width:400px; height:min(820px, calc(100vh - 130px)); min-height:560px;
+    background:var(--ivory); border-radius:44px; overflow:hidden; position:relative;
+    box-shadow:0 40px 80px -20px rgba(90,10,10,.35), 0 18px 36px rgba(25,20,20,.18), inset 0 0 0 10px #14100f, inset 0 0 0 12px #3a3232;
+    display:flex; flex-direction:column;
+  }
+  .notch{position:absolute; top:10px; left:50%; transform:translateX(-50%); width:110px; height:24px; background:#14100f; border-radius:14px; z-index:60}
+  .screen-scroll{flex:1; overflow-y:auto; overflow-x:hidden; scrollbar-width:none; position:relative}
+  .screen-scroll::-webkit-scrollbar{display:none}
+  .screen{display:none; padding:52px 20px 26px; animation:fade .25s ease}
+  .screen.active{display:block}
+  @keyframes fade{from{opacity:0; transform:translateY(6px)} to{opacity:1; transform:none}}
+  /* ---------- shared bits ---------- */
+  h1,h2,h3,.serif{font-family:"Playfair Display",serif}
+  .eyebrow{font-size:10.5px; font-weight:800; letter-spacing:.22em; text-transform:uppercase; color:var(--red)}
+  .card{background:var(--card); border:1px solid var(--line); border-radius:20px; padding:16px; margin-top:14px; box-shadow:0 4px 14px rgba(120,40,40,.05)}
+  .row{display:flex; align-items:center; justify-content:space-between; gap:10px}
+  .mut{color:var(--mut); font-size:12.5px}
+  .btn{display:inline-flex; align-items:center; justify-content:center; gap:7px; border:0; cursor:pointer; font:700 13.5px "Plus Jakarta Sans",sans-serif; border-radius:999px; padding:11px 18px; background:var(--red); color:#fff; text-decoration:none; transition:.18s}
+  .btn:active{transform:scale(.97)}
+  .btn.ghost{background:var(--blush); color:var(--red); border:1px solid var(--blush2)}
+  .btn.done{background:var(--ok)}
+  .pill{display:inline-flex; align-items:center; gap:6px; background:var(--blush); color:var(--red-dark); border:1px solid var(--blush2); font-size:10.5px; font-weight:700; letter-spacing:.04em; padding:5px 10px; border-radius:999px}
+  /* ---------- app header ---------- */
+  .apphead{display:flex; align-items:center; justify-content:space-between}
+  .brand{display:flex; align-items:center; gap:9px}
+  .brand .mark{width:34px; height:34px; border-radius:11px; background:var(--red); color:#fff; display:flex; align-items:center; justify-content:center; font-family:"Playfair Display",serif; font-weight:700; font-size:17px}
+  .brand b{font-family:"Playfair Display",serif; font-size:17px; letter-spacing:.01em}
+  .brand small{display:block; font-family:"Plus Jakarta Sans",sans-serif; font-size:9.5px; font-weight:700; letter-spacing:.18em; color:var(--mut); text-transform:uppercase}
+  .avatar{width:38px; height:38px; border-radius:50%; background:var(--ink); color:#fff; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:13px}
+  .greet{margin-top:20px}
+  .greet h1{font-size:27px; line-height:1.12; font-weight:600}
+  .greet p{color:var(--ink2); font-size:13.5px; margin-top:5px}
+  /* rings row */
+  .rings{display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-top:14px}
+  .ring-card{background:var(--card); border:1px solid var(--line); border-radius:18px; padding:12px 8px 10px; text-align:center; box-shadow:0 4px 14px rgba(120,40,40,.05)}
+  .ring-card svg{width:62px; height:62px}
+  .ring-card .v{font-weight:800; font-size:14.5px; margin-top:2px}
+  .ring-card .l{font-size:10.5px; color:var(--mut); font-weight:700; letter-spacing:.06em; text-transform:uppercase}
+  .ring-bg{stroke:var(--blush2)} .ring-fg{stroke:var(--red); stroke-linecap:round; transform:rotate(-90deg); transform-origin:center}
+  .ring-fg.green{stroke:var(--ok)} .ring-fg.soft{stroke:var(--red-soft)}
+  .stepper{display:flex; align-items:center; justify-content:center; gap:8px; margin-top:4px}
+  .stepper button{width:24px; height:24px; border-radius:50%; border:1px solid var(--blush2); background:var(--blush); color:var(--red); font-weight:800; cursor:pointer; font-size:14px; line-height:1}
+  /* med + appt */
+  .med-ic{width:42px; height:42px; border-radius:13px; background:var(--blush); display:flex; align-items:center; justify-content:center; font-size:20px; flex:none}
+  .card h3{font-size:16.5px; font-weight:600}
+  .kv{font-size:13px; color:var(--ink2); margin-top:3px}
+  .kv b{color:var(--ink)}
+  .spark-wrap{margin-top:10px}
+  .trend-note{font-size:12px; color:var(--ok); font-weight:700}
+  /* ---------- log screen ---------- */
+  .search{display:flex; align-items:center; gap:9px; background:#fff; border:1px solid var(--line); border-radius:14px; padding:12px 14px; margin-top:14px}
+  .search input{border:0; outline:0; flex:1; font:500 14px "Plus Jakarta Sans",sans-serif; background:transparent; color:var(--ink)}
+  .chips{display:flex; flex-wrap:wrap; gap:8px; margin-top:12px}
+  .chip{border:1px solid var(--blush2); background:var(--blush); color:var(--red-dark); font:700 12.5px "Plus Jakarta Sans",sans-serif; padding:9px 13px; border-radius:999px; cursor:pointer; transition:.15s}
+  .chip:active{transform:scale(.95); background:var(--blush2)}
+  .scanbtn{width:100%; margin-top:12px; background:var(--ink); color:#fff; border:0; border-radius:14px; padding:13px; font:700 13.5px "Plus Jakarta Sans",sans-serif; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px}
+  .meal{display:flex; justify-content:space-between; align-items:center; padding:11px 2px; border-bottom:1px solid var(--line)}
+  .meal:last-child{border-bottom:0}
+  .meal .n{font-weight:700; font-size:14px}
+  .meal .s{font-size:12px; color:var(--mut)}
+  .meal .p{font-weight:800; font-size:13.5px; color:var(--red)}
+  .totals{position:sticky; bottom:0; background:var(--ink); color:#fff; border-radius:16px; padding:13px 16px; margin-top:14px; display:flex; justify-content:space-between; font-size:13px}
+  .totals b{font-size:15px}
+  /* ---------- progress ---------- */
+  .stat-grid{display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:14px}
+  .stat{background:var(--card); border:1px solid var(--line); border-radius:18px; padding:14px}
+  .stat .v{font-family:"Playfair Display",serif; font-size:24px; font-weight:700}
+  .stat .l{font-size:11px; color:var(--mut); font-weight:700; letter-spacing:.07em; text-transform:uppercase; margin-top:2px}
+  .stat .d{font-size:12px; font-weight:700; color:var(--ok); margin-top:3px}
+  .streak{display:flex; gap:6px; margin-top:10px}
+  .streak i{flex:1; height:9px; border-radius:99px; background:var(--blush2)}
+  .streak i.on{background:var(--red)}
+  /* ---------- care ---------- */
+  .appt{display:flex; gap:12px; padding:12px 2px; border-bottom:1px solid var(--line)}
+  .appt:last-child{border-bottom:0}
+  .datebox{flex:none; width:52px; text-align:center; background:var(--blush); border:1px solid var(--blush2); border-radius:14px; padding:8px 0}
+  .datebox .d{font-family:"Playfair Display",serif; font-weight:700; font-size:19px; color:var(--red)}
+  .datebox .m{font-size:10px; font-weight:800; letter-spacing:.1em; color:var(--ink2); text-transform:uppercase}
+  .edu{display:flex; gap:12px; align-items:center}
+  .edu .thumb{flex:none; width:54px; height:54px; border-radius:14px; display:flex; align-items:center; justify-content:center; font-size:23px; background:var(--blush)}
+  /* ---------- more ---------- */
+  .setrow{display:flex; align-items:center; justify-content:space-between; padding:13px 2px; border-bottom:1px solid var(--line)}
+  .setrow:last-child{border-bottom:0}
+  .setrow .n{font-weight:700; font-size:14px}
+  .setrow .s{font-size:12px; color:var(--mut)}
+  .switch{width:48px; height:28px; border-radius:99px; background:#ddd0d0; position:relative; cursor:pointer; flex:none; transition:.2s; border:0}
+  .switch::after{content:""; position:absolute; top:3px; left:3px; width:22px; height:22px; border-radius:50%; background:#fff; box-shadow:0 2px 6px rgba(0,0,0,.2); transition:.2s}
+  .switch.on{background:var(--red)}
+  .switch.on::after{left:23px}
+  /* ---------- connections ---------- */
+  .syncbox{display:none; flex-wrap:wrap; gap:6px; margin:9px 0 2px}
+  .syncbox.show{display:flex}
+  .syncchip{font-size:11px; font-weight:700; background:var(--blush); border:1px solid var(--blush2); border-radius:999px; padding:5px 9px; color:var(--ink2)}
+  .connbtn{border:1.5px solid var(--red); color:var(--red); background:#fff; border-radius:999px; padding:7px 14px; font:800 12px "Plus Jakarta Sans",sans-serif; cursor:pointer; flex:none}
+  .connbtn:disabled{opacity:.6; cursor:default}
+  .connlink{background:none; border:0; color:var(--red); font:700 12px "Plus Jakarta Sans",sans-serif; cursor:pointer; padding:8px 0 2px}
+  /* ---------- ai guide ---------- */
+  .g-avatar{border-radius:50%; object-fit:cover; flex:none; border:2px solid var(--blush2); background:var(--blush)}
+  .head-guide{display:flex; gap:12px; align-items:center}
+  .guide-card{display:flex; gap:13px; align-items:center}
+  .guide-card p{font-size:12.5px; color:var(--ink2); line-height:1.5; margin-top:3px}
+  .honesty{background:var(--blush); border:1px solid var(--blush2); border-radius:16px; padding:12px 14px; font-size:12.5px; line-height:1.55; color:var(--ink2); margin-top:14px}
+  .honesty b{color:var(--red-dark)}
+  .gmsg{display:flex; gap:8px; margin-top:12px; align-items:flex-end}
+  .gmsg .bubble{background:var(--card); border:1px solid var(--line); border-radius:16px; border-bottom-left-radius:6px; padding:11px 13px; font-size:13.5px; line-height:1.55; max-width:82%; box-shadow:0 4px 14px rgba(120,40,40,.05)}
+  .gmsg.me{justify-content:flex-end}
+  .gmsg.me .bubble{background:var(--red); color:#fff; border-color:var(--red); border-radius:16px; border-bottom-right-radius:6px}
+  .guide-input{position:sticky; bottom:0; display:flex; gap:8px; background:var(--ivory); padding:12px 0 4px; margin-top:14px}
+  .guide-input input{flex:1; border:1px solid var(--line); border-radius:999px; padding:11px 15px; font:500 13.5px "Plus Jakarta Sans",sans-serif; outline:0; background:#fff; color:var(--ink); min-width:0}
+  .backlink{background:none; border:0; cursor:pointer; font:700 13px "Plus Jakarta Sans",sans-serif; color:var(--red); padding:0}
+  /* ---------- tab bar ---------- */
+  .tabbar{flex:none; display:flex; background:rgba(255,255,255,.96); border-top:1px solid var(--line); padding:10px 8px 20px; backdrop-filter:blur(8px); z-index:50}
+  .tab{flex:1; background:none; border:0; cursor:pointer; display:flex; flex-direction:column; align-items:center; gap:3px; font:700 10.5px "Plus Jakarta Sans",sans-serif; color:var(--mut); padding:4px 0}
+  .tab .ic{font-size:20px; line-height:1; filter:grayscale(1); opacity:.55}
+  .tab.active{color:var(--red)}
+  .tab.active .ic{filter:none; opacity:1}
+  /* toast */
+  .toast{position:absolute; left:50%; bottom:104px; transform:translate(-50%,20px); background:var(--ink); color:#fff; font-size:12.5px; font-weight:600; padding:11px 16px; border-radius:12px; opacity:0; pointer-events:none; transition:.25s; z-index:80; max-width:86%; text-align:center; box-shadow:0 12px 30px rgba(0,0,0,.25)}
+  .toast.show{opacity:1; transform:translate(-50%,0)}
+  .caption{margin-top:16px; text-align:center; color:#6b5a5a; font-size:13px; max-width:400px}
+  .caption b{color:var(--red-dark)}
+</style>
+</head>
+<body>
+
+<div class="phone" id="phone">
+  <div class="notch"></div>
+  <div class="screen-scroll" id="scroller">
+
+    <!-- ============ TODAY ============ -->
+    <section class="screen active" id="scr-today">
+      <div class="apphead">
+        <div class="brand"><div class="mark">E</div><div><b>Elite Journey</b><small>Elite Health &amp; Wellness</small></div></div>
+        <div class="avatar">SP</div>
+      </div>
+
+      <div class="greet">
+        <div class="head-guide">
+          <img class="g-avatar" src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" data-av="1" alt="Dr. Nikki — your AI guide" width="48" height="48">
+          <div>
+            <div class="eyebrow">Thursday · Week 6 of your program</div>
+            <h1>Good morning,<br>Sample Patient</h1>
+          </div>
+        </div>
+        <p>Small steps, logged daily — that's the whole game.</p>
+        <div style="margin-top:10px"><span class="pill">🧪 Sample data · Prototype — not a real patient record</span></div>
+      </div>
+
+      <div class="card">
+        <div class="guide-card">
+          <img class="g-avatar" src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" data-av="1" alt="Dr. Nikki — your AI guide" width="58" height="58">
+          <div>
+            <h3>Meet your guide — Dr. Nikki (AI)</h3>
+            <p>Modeled on Dr. Mobley to keep your journey on track between visits.</p>
+          </div>
+        </div>
+        <button class="btn open-guide" style="width:100%;margin-top:13px">💬 Chat with your guide</button>
+      </div>
+
+      <div class="rings">
+        <div class="ring-card">
+          <svg viewBox="0 0 70 70"><circle class="ring-bg" cx="35" cy="35" r="29" fill="none" stroke-width="8"/><circle class="ring-fg" cx="35" cy="35" r="29" fill="none" stroke-width="8" stroke-dasharray="182.2" stroke-dashoffset="57"/></svg>
+          <div class="v" id="proteinVal">62<span style="color:var(--mut);font-size:11px">/90g</span></div><div class="l">Protein</div>
+        </div>
+        <div class="ring-card">
+          <svg viewBox="0 0 70 70"><circle class="ring-bg" cx="35" cy="35" r="29" fill="none" stroke-width="8"/><circle class="ring-fg soft" id="waterRing" cx="35" cy="35" r="29" fill="none" stroke-width="8" stroke-dasharray="182.2" stroke-dashoffset="68.3"/></svg>
+          <div class="v"><span id="waterVal">5</span><span style="color:var(--mut);font-size:11px">/8</span></div><div class="l">Water · glasses</div>
+          <div class="stepper"><button id="waterMinus" aria-label="Remove a glass">−</button><button id="waterPlus" aria-label="Add a glass">+</button></div>
+        </div>
+        <div class="ring-card">
+          <svg viewBox="0 0 70 70"><circle class="ring-bg" cx="35" cy="35" r="29" fill="none" stroke-width="8"/><circle class="ring-fg green" cx="35" cy="35" r="29" fill="none" stroke-width="8" stroke-dasharray="182.2" stroke-dashoffset="68"/></svg>
+          <div class="v">6,240</div><div class="l">Steps</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="row">
+          <div style="display:flex;gap:12px;align-items:center">
+            <div class="med-ic">💉</div>
+            <div>
+              <h3>Semaglutide</h3>
+              <div class="kv">Dose day: <b>Thursday</b> · Site: <b>Left abdomen</b></div>
+              <div class="kv" id="doseState">Not logged yet today</div>
+            </div>
+          </div>
+        </div>
+        <button class="btn" id="doseBtn" style="width:100%;margin-top:13px">Log dose</button>
+      </div>
+
+      <div class="card">
+        <div class="row"><div>
+          <div class="eyebrow" style="letter-spacing:.16em">Next appointment</div>
+          <h3 style="margin-top:4px">Program check-in — Elite Clinic</h3>
+          <div class="kv">Thursday · <b>10:30 AM</b> · 9555 S. Eastern Ave, Ste 270</div>
+        </div><div style="font-size:26px">📍</div></div>
+      </div>
+
+      <div class="card">
+        <div class="row"><h3>Weight trend</h3><span class="trend-note">▼ 8 lb · 8 weeks</span></div>
+        <div class="spark-wrap">
+          <svg viewBox="0 0 320 84" width="100%" height="84" role="img" aria-label="Weight trend sparkline, 212 down to 204 pounds">
+            <polyline points="8,14 52,22 96,30 140,38 184,48 228,56 272,64 312,70" fill="none" stroke="#a50000" stroke-width="3" stroke-linecap="round"/>
+            <circle cx="8" cy="14" r="4" fill="#a50000"/><circle cx="312" cy="70" r="4.5" fill="#a50000"/>
+            <text x="8" y="10" font-size="10" fill="#8a7a7a" font-weight="700">212</text>
+            <text x="288" y="62" font-size="10" fill="#a50000" font-weight="800">204 lb</text>
+          </svg>
+        </div>
+        <div class="mut">Full chart in the Progress tab →</div>
+      </div>
+    </section>
+
+    <!-- ============ LOG ============ -->
+    <section class="screen" id="scr-log">
+      <div class="eyebrow">Food log</div>
+      <h1 style="font-size:26px;font-weight:600;margin-top:4px">What did you eat?</h1>
+      <div class="search"><span>🔎</span><input id="foodSearch" type="text" placeholder="Search foods… (decorative in prototype)"></div>
+      <div class="chips" id="quickChips">
+        <button class="chip" data-name="Greek yogurt" data-detail="¾ cup · plain, nonfat" data-cal="100" data-protein="17">+ Greek yogurt · 17g</button>
+        <button class="chip" data-name="Grilled chicken" data-detail="4 oz breast" data-cal="185" data-protein="35">+ Grilled chicken · 35g</button>
+        <button class="chip" data-name="Protein shake" data-detail="1 bottle · ready-to-drink" data-cal="160" data-protein="30">+ Protein shake · 30g</button>
+      </div>
+      <button class="scanbtn" id="scanBtn">📷&nbsp; Scan barcode</button>
+
+      <div class="card">
+        <div class="row"><h3>Today's meals</h3><span class="mut" id="mealCount">3 items</span></div>
+        <div id="mealList">
+          <div class="meal"><div><div class="n">Egg &amp; spinach scramble</div><div class="s">Breakfast · 2 eggs</div></div><div class="p">14g protein</div></div>
+          <div class="meal"><div><div class="n">Turkey &amp; avocado wrap</div><div class="s">Lunch · whole wheat</div></div><div class="p">28g protein</div></div>
+          <div class="meal"><div><div class="n">Cottage cheese &amp; berries</div><div class="s">Snack · ½ cup</div></div><div class="p">20g protein</div></div>
+        </div>
+      </div>
+      <div class="totals"><span>Today · <b id="totCal">742</b> kcal</span><span>Protein <b id="totProtein">62</b>g / 90g</span></div>
+      <p class="mut" style="margin-top:12px">Photo estimates and barcode results always ask you to confirm before saving — the app never guesses silently.</p>
+    </section>
+
+    <!-- ============ PROGRESS ============ -->
+    <section class="screen" id="scr-progress">
+      <div class="eyebrow">Progress</div>
+      <h1 style="font-size:26px;font-weight:600;margin-top:4px">Eight weeks in</h1>
+      <div class="card">
+        <div class="row"><h3>Weight</h3><span class="trend-note">212 → 204 lb</span></div>
+        <svg viewBox="0 0 320 170" width="100%" height="170" style="margin-top:8px" role="img" aria-label="Weight line chart from 212 to 204 pounds over 8 weeks">
+          <g stroke="#f3e2e2" stroke-width="1"><line x1="30" y1="20" x2="310" y2="20"/><line x1="30" y1="60" x2="310" y2="60"/><line x1="30" y1="100" x2="310" y2="100"/><line x1="30" y1="140" x2="310" y2="140"/></g>
+          <g font-size="9.5" fill="#8a7a7a" font-weight="700"><text x="2" y="24">212</text><text x="2" y="64">210</text><text x="2" y="104">207</text><text x="2" y="144">204</text></g>
+          <polyline points="34,24 72,40 110,52 148,74 186,88 224,106 262,124 302,138" fill="none" stroke="#a50000" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+          <g fill="#a50000"><circle cx="34" cy="24" r="3.5"/><circle cx="72" cy="40" r="3.5"/><circle cx="110" cy="52" r="3.5"/><circle cx="148" cy="74" r="3.5"/><circle cx="186" cy="88" r="3.5"/><circle cx="224" cy="106" r="3.5"/><circle cx="262" cy="124" r="3.5"/><circle cx="302" cy="138" r="4.5"/></g>
+          <g font-size="9.5" fill="#8a7a7a" font-weight="700" text-anchor="middle"><text x="34" y="162">Wk 1</text><text x="110" y="162">Wk 3</text><text x="186" y="162">Wk 5</text><text x="262" y="162">Wk 7</text><text x="302" y="162">Now</text></g>
+        </svg>
+        <div class="mut">Sample data — steady, sustainable pace your care team aims for.</div>
+      </div>
+      <div class="stat-grid">
+        <div class="stat"><div class="v">−1.5″</div><div class="l">Waist</div><div class="d">36.5″ → 35.0″</div></div>
+        <div class="stat"><div class="v">6 / 7</div><div class="l">Logging streak</div><div class="d">Best week yet</div></div>
+        <div class="stat"><div class="v">84g</div><div class="l">Protein average</div><div class="d">▲ from 71g in Wk 1</div></div>
+        <div class="stat"><div class="v">−8 lb</div><div class="l">Total change</div><div class="d">≈ 1 lb / week</div></div>
+      </div>
+      <div class="card">
+        <div class="row"><h3>This week's logging</h3><span class="mut">Mon – Sun</span></div>
+        <div class="streak"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i></div>
+        <div class="mut" style="margin-top:9px">Six days logged. Sunday is the only gap — no guilt, just data.</div>
+      </div>
+    </section>
+
+    <!-- ============ CARE ============ -->
+    <section class="screen" id="scr-care">
+      <div class="eyebrow">Care team</div>
+      <h1 style="font-size:26px;font-weight:600;margin-top:4px">Your care at Elite</h1>
+      <div class="card">
+        <h3>Appointments</h3>
+        <div class="appt"><div class="datebox"><div class="d">23</div><div class="m">Thu</div></div><div><div style="font-weight:700;font-size:14.5px">Program check-in</div><div class="mut">10:30 AM · Elite Clinic · weigh-in + labs review</div></div></div>
+        <div class="appt"><div class="datebox"><div class="d">06</div><div class="m">Thu</div></div><div><div style="font-weight:700;font-size:14.5px">Nutrition coaching (telehealth)</div><div class="mut">4:00 PM · Video visit · protein planning</div></div></div>
+        <div class="appt"><div class="datebox"><div class="d">20</div><div class="m">Thu</div></div><div><div style="font-weight:700;font-size:14.5px">Monthly provider visit</div><div class="mut">10:30 AM · Elite Clinic · Dr. Mobley's team</div></div></div>
+        <a class="btn" href="https://practice.kareo.com/theelitehealth" target="_blank" rel="noopener" style="width:100%;margin-top:13px">Book via patient portal ↗</a>
+      </div>
+
+      <div class="card">
+        <h3>Learn · from your care team</h3>
+        <div class="edu" style="margin-top:12px"><div class="thumb">🌿</div><div><div style="font-weight:700;font-size:14.5px">Week 6: Managing nausea</div><div class="mut">Small meals, ginger, and when to call us</div></div></div>
+        <div class="edu" style="margin-top:14px"><div class="thumb">🥚</div><div><div style="font-weight:700;font-size:14.5px">Protein targets on GLP-1</div><div class="mut">Why 90g a day protects your muscle</div></div></div>
+        <div class="edu" style="margin-top:14px"><div class="thumb">💉</div><div><div style="font-weight:700;font-size:14.5px">Rotating injection sites</div><div class="mut">A simple map for comfortable dose days</div></div></div>
+      </div>
+
+      <div class="card">
+        <div class="row"><div><h3>Message the clinic</h3><div class="kv" style="max-width:230px">For anything health-related, messaging runs through the secure patient portal — never this demo chat.</div></div><div style="font-size:26px">✉️</div></div>
+        <a class="btn ghost" href="https://practice.kareo.com/theelitehealth" target="_blank" rel="noopener" style="width:100%;margin-top:12px">Open secure portal ↗</a>
+      </div>
+
+      <div class="card">
+        <div class="guide-card">
+          <img class="g-avatar" src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" data-av="1" alt="Dr. Nikki — your AI guide" width="58" height="58">
+          <div>
+            <h3>Ask your guide — Dr. Nikki (AI)</h3>
+            <p>Quick answers about your program and how the app works, any time — modeled on Dr. Mobley.</p>
+          </div>
+        </div>
+        <button class="btn open-guide" style="width:100%;margin-top:13px">💬 Chat with your guide</button>
+      </div>
+    </section>
+
+    <!-- ============ GUIDE ============ -->
+    <section class="screen" id="scr-guide">
+      <button class="backlink" id="guideBack">← Back to Today</button>
+      <div class="head-guide" style="margin-top:14px">
+        <img class="g-avatar" src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" data-av="1" alt="Dr. Nikki — your AI guide" width="52" height="52">
+        <div>
+          <div class="eyebrow">Your AI guide</div>
+          <h1 style="font-size:24px;font-weight:600;margin-top:2px">Dr. Nikki (AI)</h1>
+        </div>
+      </div>
+
+      <div class="honesty">💡 <b>Honest note:</b> I'm an AI guide modeled on Dr. Mobley's program. I'm not Dr. Mobley, and I don't give medical advice — for anything medical, your care team answers in the patient portal.</div>
+
+      <div id="guideMsgs">
+        <div class="gmsg">
+          <img class="g-avatar" src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" data-av="1" alt="Dr. Nikki — your AI guide" width="30" height="30">
+          <div class="bubble">Hi there 👋 I'm your guide for the Elite Journey program — modeled on Dr. Mobley's approach, here to keep your journey on track between visits. Tap a question below, or type your own.</div>
+        </div>
+      </div>
+
+      <div class="chips">
+        <button class="chip gchip" data-a="dose">How do I log my dose?</button>
+        <button class="chip gchip" data-a="nausea">What if I feel nauseous?</button>
+        <button class="chip gchip" data-a="visit">How do I prepare for my visit?</button>
+      </div>
+
+      <form class="guide-input" id="guideForm">
+        <input id="guideText" type="text" placeholder="Ask your guide…" autocomplete="off" aria-label="Ask your guide">
+        <button class="btn" type="submit" style="padding:11px 16px">Send</button>
+      </form>
+    </section>
+
+    <!-- ============ MORE ============ -->
+    <section class="screen" id="scr-more">
+      <div class="eyebrow">Profile &amp; program</div>
+      <h1 style="font-size:26px;font-weight:600;margin-top:4px">Sample Patient</h1>
+      <p class="mut" style="margin-top:4px">Medical Weight Loss Program · started 8 weeks ago · Elite Clinic + telehealth</p>
+
+      <div class="card">
+        <h3>Reminders</h3>
+        <div class="setrow"><div><div class="n">Dose day reminder</div><div class="s">Thursdays · 8:00 AM</div></div><button class="switch on" data-name="Dose day reminder" aria-label="Toggle dose day reminder"></button></div>
+        <div class="setrow"><div><div class="n">Weigh-in reminder</div><div class="s">Sunday mornings</div></div><button class="switch on" data-name="Weigh-in reminder" aria-label="Toggle weigh-in reminder"></button></div>
+        <div class="setrow"><div><div class="n">Protein nudge</div><div class="s">If under target by 6 PM</div></div><button class="switch" data-name="Protein nudge" aria-label="Toggle protein nudge"></button></div>
+        <div class="setrow"><div><div class="n">Appointment reminders</div><div class="s">Text + app · day before</div></div><button class="switch on" data-name="Appointment reminders" aria-label="Toggle appointment reminders"></button></div>
+      </div>
+
+      <div class="card">
+        <h3>Program settings</h3>
+        <div class="setrow"><div><div class="n">Daily protein target</div><div class="s">Set with your provider</div></div><div style="font-weight:800">90g</div></div>
+        <div class="setrow"><div><div class="n">Dose day</div><div class="s">Injection day of week</div></div><div style="font-weight:800">Thu</div></div>
+        <div class="setrow"><div><div class="n">Connected health apps</div><div class="s">Apple Health / Health Connect — with your consent</div></div><div class="pill">Concept</div></div>
+      </div>
+
+      <div class="card">
+        <h3>Connected apps &amp; devices</h3>
+        <p class="kv" style="line-height:1.55">Connect the apps and devices you already use, and your weight, activity, and sleep show up here automatically — no typing. <b>Concept:</b> sample data only; real connections arrive with the full app.</p>
+
+        <div class="setrow"><div><div class="n">⌚ Fitbit</div><div class="s">Connected · Aria scale + tracker</div></div><div class="pill">Connected</div></div>
+        <div class="syncbox show">
+          <span class="syncchip">⚖️ Weight 182.4 lb · Fitbit Aria · today 7:02 AM</span>
+          <span class="syncchip">👟 8,214 steps · Fitbit · today</span>
+          <span class="syncchip">😴 Sleep 7h 12m · Fitbit · last night</span>
+        </div>
+        <div class="setrow"><div><div class="n">Sync weight</div><div class="s">From your scale or tracker</div></div><button class="switch on" data-name="Fitbit weight sync" aria-label="Toggle Fitbit weight sync"></button></div>
+        <div class="setrow"><div><div class="n">Sync activity &amp; sleep</div><div class="s">Steps, workouts, sleep</div></div><button class="switch on" data-name="Fitbit activity and sleep sync" aria-label="Toggle Fitbit activity and sleep sync"></button></div>
+        <div class="setrow"><div><div class="n">Sync heart rate</div><div class="s">Resting heart rate trend</div></div><button class="switch" data-name="Fitbit heart rate sync" aria-label="Toggle Fitbit heart rate sync"></button></div>
+        <button class="connlink" id="fitbitDisconnect">Disconnect Fitbit (mock)</button>
+
+        <div class="setrow"><div><div class="n">🍎 Apple Health</div><div class="s" id="appleStatus">Not connected · activity, weight, sleep + your chart</div></div><button class="connbtn" data-name="Apple Health" data-target="appleBox" data-status="appleStatus">Connect</button></div>
+        <div class="syncbox" id="appleBox">
+          <span class="syncchip">👟 8,214 steps · Apple Health · today</span>
+          <span class="syncchip">🚶 Workout 32 min · Apple Health · yesterday</span>
+          <span class="syncchip">📋 Chart · meds, labs, immunizations · Apple Health Records</span>
+        </div>
+        <p class="kv" style="line-height:1.55;margin-top:8px">If your clinic participates, your <b>chart can live in Apple Health too</b> — medications, labs, immunizations, and visit summaries under Health Records. Elite Journey points you there; it doesn’t copy your chart into this app.</p>
+
+        <div class="setrow"><div><div class="n">🤖 Health Connect</div><div class="s" id="healthStatus">Not connected · Android’s health hub</div></div><button class="connbtn" data-name="Health Connect" data-target="healthBox" data-status="healthStatus">Connect</button></div>
+        <div class="syncbox" id="healthBox">
+          <span class="syncchip">👟 Steps · Health Connect · today</span>
+          <span class="syncchip">😴 Sleep · Health Connect · last night</span>
+          <span class="syncchip">⚖️ Weight · Health Connect · Sunday</span>
+        </div>
+
+        <div class="setrow"><div><div class="n">⚖️ Withings</div><div class="s">Smart scales &amp; BP cuffs</div></div><div class="pill">Coming later</div></div>
+
+        <p class="kv" style="line-height:1.55;margin-top:10px">You choose what syncs, category by category. Disconnect anytime — syncing stops right away, and you can delete what was synced. Synced values always show where they came from.</p>
+      </div>
+
+      <div class="card">
+        <h3>❤️ Heart health <span class="pill" style="margin-left:6px">Concept</span></h3>
+        <p class="kv" style="line-height:1.55">For patients managing blood pressure and heart conditions alongside weight. Your watch or tracker flags heart events — this app helps you and your care team see them in context. <b>Sample data only.</b></p>
+        <div class="syncbox show">
+          <span class="syncchip">💓 Irregular rhythm flag · Apple Watch · Tue 9:41 PM</span>
+          <span class="syncchip">🩸 BP 128/82 · Withings cuff · this morning</span>
+          <span class="syncchip">💗 Resting HR 68 bpm · Fitbit · 7-day trend</span>
+        </div>
+        <div class="setrow"><div><div class="n">Device heart alerts</div><div class="s">Irregular rhythm, high/low heart rate — from your device</div></div><button class="switch on" data-name="Device heart alerts" aria-label="Toggle device heart alerts"></button></div>
+        <div class="setrow"><div><div class="n">Care-team review band</div><div class="s">Repeated high home BP readings flagged for staff review</div></div><button class="switch on" data-name="Care-team review band" aria-label="Toggle care-team review band"></button></div>
+        <div class="honesty"><b>Not an emergency service.</b> This app does not watch you in real time. Chest pain or pressure, severe shortness of breath, or fainting: <b>call 911 first</b> — log it later.</div>
+      </div>
+
+      <div class="card">
+        <h3>Data &amp; privacy</h3>
+        <p class="kv" style="line-height:1.55">In the real product, anything linked to your clinic record is protected health information: it lives only in <b>HIPAA-covered (BAA) systems</b>, encrypted, with your consent — and you can revoke access or export your data at any time. No ads, no trackers, no selling data. Ever.</p>
+        <button class="btn ghost" id="exportBtn" style="width:100%;margin-top:13px">📄 Export pre-visit summary (mock)</button>
+      </div>
+      <p class="mut" style="text-align:center;margin-top:16px">Elite Journey · Concept prototype · Sample data only</p>
+    </section>
+  </div>
+
+  <!-- ============ TAB BAR ============ -->
+  <nav class="tabbar" id="tabbar">
+    <button class="tab active" data-tab="today"><span class="ic">🏠</span>Today</button>
+    <button class="tab" data-tab="log"><span class="ic">🍽️</span>Log</button>
+    <button class="tab" data-tab="progress"><span class="ic">📈</span>Progress</button>
+    <button class="tab" data-tab="care"><span class="ic">🩺</span>Care</button>
+    <button class="tab" data-tab="more"><span class="ic">⚙️</span>More</button>
+  </nav>
+
+  <div class="toast" id="toast"></div>
+</div>
+
+<p class="caption"><b>Elite Journey</b> — concept prototype. Tap the tabs. Built for Elite Health &amp; Wellness by The Mobley Group · all data shown is sample data.</p>
+<p style="text-align:center;font-size:11.5px;color:#8a7d6d;max-width:430px;margin:10px auto 0">© 2026 The Mobley Group — Proprietary &amp; Confidential concept. Prepared exclusively for Elite Health &amp; Wellness; do not copy, share, or distribute without written permission.</p>
+
+<script>
+(function(){
+  "use strict";
+  var toastEl = document.getElementById('toast'), toastTimer = null;
+  function toast(msg){
+    toastEl.textContent = msg; toastEl.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function(){ toastEl.classList.remove('show'); }, 2400);
+  }
+  /* ---- tab switching ---- */
+  var tabs = document.querySelectorAll('#tabbar .tab');
+  var scroller = document.getElementById('scroller');
+  function showScreen(name){
+    document.querySelectorAll('.screen').forEach(function(s){ s.classList.remove('active'); });
+    document.getElementById('scr-' + name).classList.add('active');
+    scroller.scrollTop = 0;
+  }
+  function activateTab(name){
+    tabs.forEach(function(t){ t.classList.toggle('active', t.dataset.tab === name); });
+  }
+  tabs.forEach(function(tab){
+    tab.addEventListener('click', function(){
+      activateTab(tab.dataset.tab);
+      showScreen(tab.dataset.tab);
+    });
+  });
+  /* ---- ai guide: open / back ---- */
+  document.querySelectorAll('.open-guide').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      tabs.forEach(function(t){ t.classList.remove('active'); });
+      showScreen('guide');
+    });
+  });
+  document.getElementById('guideBack').addEventListener('click', function(){
+    activateTab('today');
+    showScreen('today');
+  });
+  /* ---- ai guide: chat demo ---- */
+  var guideMsgs = document.getElementById('guideMsgs');
+  var GUIDE_ANSWERS = {
+    dose: "Logging your dose takes ten seconds: 1) After your injection, find the Semaglutide card on the Today screen — it shows your dose day and this week's site. 2) Tap \u201CLog dose.\u201D 3) The button turns green and confirms today's site — done. Rotate sites week to week (the Care tab has a simple site map), and your dose history builds in Progress.",
+    nausea: "Mild nausea is common in the first weeks on a GLP-1, and it usually settles. What often helps: smaller, more frequent meals; protein first, and stop when you're comfortably full; sip water through the day (the Today screen tracks it); ginger tea or ginger chews can help; go easy on greasy or very sweet foods. If it's severe, you can't keep fluids down, or it keeps happening, message the clinic through the patient portal so your care team can help.",
+    visit: "Here's how to get the most from your visit: bring your medication list (or photos of your bottles), your insurance card and ID, and any recent labs from other providers. Before you come in, open the More tab and tap \u201CExport pre-visit summary\u201D — it gathers your weight trend, protein averages, and dose history onto one page your provider reviews with you. Arrive about 10 minutes early for check-in at 9555 S. Eastern Ave, Ste 270."
+  };
+  var GUIDE_FALLBACK = "That's one for the care team — send it through the patient portal and they'll reply.";
+  function guideScroll(){ scroller.scrollTop = scroller.scrollHeight; }
+  function addGuideMsg(text, me){
+    var row = document.createElement('div'); row.className = 'gmsg' + (me ? ' me' : '');
+    if(!me){
+      var img = document.createElement('img');
+      img.className = 'g-avatar'; img.width = 30; img.height = 30;
+      img.src = window.__AV; img.alt = 'Dr. Nikki — your AI guide';
+      row.appendChild(img);
+    }
+    var b = document.createElement('div'); b.className = 'bubble'; b.textContent = text;
+    row.appendChild(b); guideMsgs.appendChild(row); guideScroll();
+  }
+  function guideReply(key){
+    setTimeout(function(){ addGuideMsg(GUIDE_ANSWERS[key], false); }, 350);
+  }
+  document.querySelectorAll('.gchip').forEach(function(chip){
+    chip.addEventListener('click', function(){
+      addGuideMsg(chip.textContent, true);
+      guideReply(chip.dataset.a);
+    });
+  });
+  document.getElementById('guideForm').addEventListener('submit', function(e){
+    e.preventDefault();
+    var input = document.getElementById('guideText');
+    var q = input.value.trim(); if(!q) return;
+    input.value = '';
+    addGuideMsg(q, true);
+    var low = q.toLowerCase(), key = null;
+    if(low.indexOf('dose') > -1 || low.indexOf('inject') > -1) key = 'dose';
+    else if(low.indexOf('nause') > -1 || low.indexOf('sick') > -1 || low.indexOf('vomit') > -1) key = 'nausea';
+    else if(low.indexOf('visit') > -1 || low.indexOf('prepare') > -1 || low.indexOf('bring') > -1 || low.indexOf('appointment') > -1) key = 'visit';
+    setTimeout(function(){ addGuideMsg(key ? GUIDE_ANSWERS[key] : GUIDE_FALLBACK, false); }, 350);
+  });
+  /* ---- log dose toggle ---- */
+  var doseBtn = document.getElementById('doseBtn'), doseState = document.getElementById('doseState'), doseLogged = false;
+  doseBtn.addEventListener('click', function(){
+    doseLogged = !doseLogged;
+    if(doseLogged){
+      doseBtn.textContent = '✓ Dose logged — nice work'; doseBtn.classList.add('done');
+      doseState.innerHTML = '<b style="color:var(--ok)">Logged today · Left abdomen</b>';
+      toast('Dose logged. See you next Thursday.');
+    } else {
+      doseBtn.textContent = 'Log dose'; doseBtn.classList.remove('done');
+      doseState.textContent = 'Not logged yet today';
+    }
+  });
+  /* ---- water stepper ---- */
+  var water = 5, CIRC = 182.2;
+  var waterVal = document.getElementById('waterVal'), waterRing = document.getElementById('waterRing');
+  function renderWater(){
+    waterVal.textContent = water;
+    waterRing.style.strokeDashoffset = (CIRC * (1 - water/8)).toFixed(1);
+  }
+  document.getElementById('waterPlus').addEventListener('click', function(){
+    if(water < 8){ water++; renderWater(); if(water === 8) toast('Water goal hit — 8 glasses. 💧'); }
+  });
+  document.getElementById('waterMinus').addEventListener('click', function(){
+    if(water > 0){ water--; renderWater(); }
+  });
+  /* ---- quick add chips ---- */
+  var mealList = document.getElementById('mealList'), mealCount = document.getElementById('mealCount');
+  var totCal = 742, totProtein = 62, items = 3;
+  document.querySelectorAll('#quickChips .chip').forEach(function(chip){
+    chip.addEventListener('click', function(){
+      var row = document.createElement('div'); row.className = 'meal';
+      var left = document.createElement('div');
+      var n = document.createElement('div'); n.className = 'n'; n.textContent = chip.dataset.name;
+      var s = document.createElement('div'); s.className = 's'; s.textContent = chip.dataset.detail + ' · just added';
+      left.appendChild(n); left.appendChild(s);
+      var p = document.createElement('div'); p.className = 'p'; p.textContent = chip.dataset.protein + 'g protein';
+      row.appendChild(left); row.appendChild(p); mealList.appendChild(row);
+      totCal += parseInt(chip.dataset.cal, 10); totProtein += parseInt(chip.dataset.protein, 10); items++;
+      document.getElementById('totCal').textContent = totCal;
+      document.getElementById('totProtein').textContent = totProtein;
+      document.getElementById('proteinVal').innerHTML = totProtein + '<span style="color:var(--mut);font-size:11px">/90g</span>';
+      mealCount.textContent = items + ' items';
+      toast(chip.dataset.name + ' added · +' + chip.dataset.protein + 'g protein');
+    });
+  });
+  /* ---- mocks ---- */
+  document.getElementById('scanBtn').addEventListener('click', function(){
+    toast('Barcode scanner is a concept in this prototype — in the real app it opens the camera.');
+  });
+  document.getElementById('exportBtn').addEventListener('click', function(){
+    toast('Pre-visit summary export is a mock here — in the real app it generates a PDF for your visit.');
+  });
+  document.getElementById('foodSearch').addEventListener('keydown', function(e){ if(e.key === 'Enter') e.preventDefault(); });
+  /* ---- connections (mock) ---- */
+  document.querySelectorAll('.connbtn').forEach(function(b){
+    b.addEventListener('click', function(){
+      var box = document.getElementById(b.dataset.target);
+      if(box) box.classList.add('show');
+      var st = document.getElementById(b.dataset.status);
+      if(st) st.textContent = 'Connected · sample data shown';
+      b.textContent = 'Connected ✓';
+      b.disabled = true;
+      toast(b.dataset.name + ' connected — concept only, sample data shown.');
+    });
+  });
+  document.getElementById('fitbitDisconnect').addEventListener('click', function(){
+    toast('Disconnect is a mock here — in the real app it stops syncing immediately.');
+  });
+  /* ---- reminder switches ---- */
+  document.querySelectorAll('.switch').forEach(function(sw){
+    sw.addEventListener('click', function(){
+      sw.classList.toggle('on');
+      toast(sw.dataset.name + (sw.classList.contains('on') ? ' on' : ' off') + ' (visual demo)');
+    });
+  });
+})();
+</script>
+<script>window.__AV='data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBAUEBAYFBQUGBgYHCQ4JCQgICRINDQoOFRIWFhUSFBQXGiEcFxgfGRQUHScdHyIjJSUlFhwpLCgkKyEkJST/2wBDAQYGBgkICREJCREkGBQYJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCT/wAARCAIAAgADASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwD6cSnE5pq9KWuM2CiiigQuSKNxpKKAFPNJjmiigYUHFLTWoAUYpc0wdaf9KAEpNgpxpDQAm0UuB6Ug5OadQAnQ0uTSUUCAmjimjk0/FAwozRSUAIVBpQBSFwDTDIe3FAEpFNLKO9RliepptK4EpkHYZpDKfQVHS0AKXY96TJPeiigdgooooFcSilpKB3FpQxHQ0lFAhwkI96Xzc9RTKKAJAVPen1BShiO9FwJaMVGJD35pwkB9qYD84ozSA5paAEJoB5pcU3GKAHZpKTNPoAbikKinHim55oAAuKdTcHNO6UAG6kOO9LTD1oAUAdqWkU04UAJgGjpSmkoAXJoyaSigAzRRjnNFACgmkJopDnFAAOlLSDpS0AFFFFAgooooGFKKSigQpppGadTSaBgOtOFM708UAwzTSadimkc0AICRThQAKXpQAGkpc00k0AKeOlGeOaZvA96axJ6mgB5kA6c0wsT1pKKQBRRRQCAUlLSd6Bi0UlLQIKKjuJ4bWB57iWOGGMZeSRgqqPUk8CvP9e+P3w/0HzFOtf2hMmf3dhE0uT6buF/Wmk3sNs9Eor5i8R/tWa7cu6+H9IstOg/hluszSY9SOFH61xM/7RPxHupD5HiCUt6RW0SqP/HatUpEcyPtOivjez/aE+KlspD6vaz56edZRsR+IAq9Z/tG/EEzD7ZrFpHH3KabG+PwyP50eyY1JH11RXz7oPx61+9Kqut+Db6T/nhfJPp8jfRzmP8AWu+h+MVvpqxnxb4f1Pw/FJjbfri7sW9xNFkAfUVLg0PmTPRKKr2GoWmq2cV7YXUF3azDdHNA4dHHsRxU9SNC0UlLQDCkpaSgVhQSOlSCQd+KjooAmzxkUZz1qJSR0p28GmA/GKdTAadQAHpTKfmkIoAAadTBxThQACmHrTsc0jHtQALTqavWnUABptONJQAZopc0hz2oAKKBmigQUGgjNFAAOlFA6UZFAwoNGaXigQgIoyKXikxQMMilppGDSigBaQilpGNADR15p4plPAoBhTSadTWFACU4DikAGM0jSY4X86AHMwXrUTMW69KQnNFIBOlLRRQAUUUUDSCkpaKAEpaKa7rGrO7KqqMszHAA9SaBC1yfxG+JOjfDbRzfalIJbqUEWlijDzblvb0Ud26D68Vwnj/9pbRdAklsPDMC61eplTcs222Q+xHL/hge9fM2ueI9T8X61c61rF091dzHG9uij0UdlHQAVpCm3uS32N7xz8TvEvxBumk1e9ZbUNmOyhJWCIew/iPucmuUdlRSzYAApM/Pt9s1BL++nER+4vzN7+1dCViAih+1nzZ8rAPup3erYn2LsiQRqOyioyS59B2HpTXkSFCzn/69MCwr85K7v95iaJLmGP74iX2rOM1xd5EeUT24/WpItPiHMhLHv2FAE5vrE9QR9Aa2/C/xC1rwfKW0LW5raJvv20g3wSj0aM5U/lWKkNunS3jP1GalC2p4a0iP0GKHqB7L4O+K2mG5+1aLJa+EtdkOZbQsf7G1RvRl/wCXdz2ccepr6B8E+NbTxpp8sqQSWWoWjCK+sJiDJbSYz1H3lI5VhwRXwrLY2M3Kh4W9jxXSeA/HWvfDfxFa6xaTNfW0Uf2eW2dztlhJzsJ7YPI9D+NZSp32KTPumiuT+H3xM8P/ABI003WjzlLmID7RZTECaA+47r6MOP5V1lc7VtywooooAKKKKACkpaKAFRitShg319KgpQaAJj7U05oWTPB/OnECmAAYpelIOlLQAGmHrTzTD1oBCrTqaOtOFMGIeaTaadmmljmkAoWlxTdxoGTQAtGaXGKacE0ABNLTR1p1AAKOBSClyKACiijigQtN3c06kwKBibsmlowBS0AFIRS9KQmgQnQ04UynLxQMWmseKcxAGTUDNuOT09KABmzwOlApKWkAUUUUAFFFFABSUtFA7hRRSUAR3V1BY2s11dTRwW8CGSWWQ4VFAyST2AFfOXxg+KEuraIl5MJLbRLwkaTphJSXVQDzc3GOVtwfupwXPXiu9+JGuWeuate6PfylPC3hyBdR191P/Hy/WG0/HhmHf5RXyd4x8W33jfxDea7f4VpWCxQr9y3iHCRqOwAwPzPetqcOrIkyC4nln8yaZt0jAknAH5AcAew6VWsmzED74qfh19iKp20nkyNA/HPBNbkFh22XSZ6OuPxqK2+Yyv3LYqW5jMsfy8Op3LVaymAkdH+Usc8+tAFp5FjGTVVVN3KXb7i8AVHeSb5sKcheOO9WYri3iiVdxyBzwetAFhQAoAGAO1OFVxeW+fvn8qik1HH+rUfVqALtGazxcXU/3P0FKPty9z+OKAL9KrFeQcVSW5uoh+8j3D1xU0V3HKdo+VvQ0AbnhPWp9A1uC9tL59Lu1b91fR5/ct/tr/FGejD05HTB+xPht8QV8aWdxZ6hbrYeIdN2pf2QbI5Hyyxn+KNhyCPX6E/EjV6j8NPFGoXlmL7S8yeJ/CEZmhTPOpaWT+9t29THnK+gOB0FZ1I3KTPr2iqGg63ZeJNFstZ06XzbS9hWaJu+COh9wcg+4q/XMWFFFFABSYpaKAQlFFLQMKUORwelJSGgCZTkcU+oFbaalU7hkUxCnpTKeaYRigEOApc00HNOAoASjFLSbuaADgUbvQUUvFACZzSYNOzSZoATgUopo5NPoBiCjtQKKACiiigQvFJRRQAhGaUDFFLQMSkPPFOpCMdKAADFBYKOaTO0ZNRE7jmgBWbcc02lopCCiiigYUUUUAFFFFACUuKKKACqWs6pBoWj32q3JAgsoJLh8+iqTj9Ku15/8erl4PhVrUcZKtdeTa5HpJKin9CaFuI8I+LWsXOi/C7QtIncjVfFlzJ4g1U92DHMaH2GVAH+xXi1uu9JIx1IBH4V6f8AtNXW/wCJ7aevEOmafbWsa9gNm7/2avKgcEEEgjuK64rQze5ctboBRE/BHAJpbuFZQGLBWHr3qmS88g4LN7DrU9vatMSWOFHGaoCNLmZF27zimBJJT8qsxPcDNaaWsKfwAn1PNSkkDigDLFjcH+DH1NOGnzHqVH41obmpKAKB0+bttP40hsZgOUz9DWiCc9adQBjmOSPkqy/hTkuZk/jLD0PNap4FRPBFICWQZ9uKAIUvkIxIuPcUskEVwNyEZ/vCo5LBj/q2/BqgVZbZskFD+hoAsxzyQP5M/Ts1b/w08WHwb8QdJ1zJ8iK5CXA7NC/yuD/wEk/hXOzXEdxDyMSDpVZhkECgD7d+GMZ8K+KPFHgUN/odtKuq6WOy205yyD2V8j8a9JryLR79m8ZfDLWifn1rw7LZzt/fKxxyjP45r1yuSW5ogpaKKkYUUUUAFJS0lAIWkxRS0DE6U5W2mm0tAiYEHpSEE1ECVORUoIIzTAAMGn02loAQ80m2looAKKKKBC0hApeKQ0DGjrTqQYpaAYL0oNA6UUAFFFFABRRRQAUUUtACZxSE4GTS+9RM24+1ACFixyaKKKQBiijNFA7CUUtJQKwtFFFA7BSUvakNAgFLSClxQMK4L46Wct58KtdMClpLZI7tQP8AplIrn9Aa7yqmrvp8elXh1WSKPT/JcXLSsAgjIIbJPbBpp2YM+K/2grhdQ+JM+qxHMGp2NneRN6o0C/1Brh7DSZLr55SY4/1P0rqNdvLfVpLKyQi5tdFWWzs7xlKvcW3ms0W5T0KhiPoazLubavlpx6kfyrrWxizPuFjDi2tlCL/ER1I+tSooRQoGAOBVezO9pJD3OBVqmAUUUUAJigjilooAYFp2KWigApMClpKAGMdki+jcfjTpFDKQwBHvUV2dqKR2YVMBxg0AUJbIjLRdP7tViSucjp1rXAxTfs9vNPEbhWMYdfM8vG4rnkDPfFAH1hpFq8es/BzT2GJbXSbi5kH91fsqL/Nq9gry/wCHmq2Xj/xxqHi/TFk/sbTdPh0jT/MXadxxJLx2x8i/hXqFck9zRBRRSVJTFooo7UCCkpaKACiiigLiUtFJQAtAJB4pKWgCVeeRTutQq20+1S5/KmAUUtJQIKKKKAFpKWkoGGBRRRQACigUmPegB1JS0GgBM0ZFBGaABQAopDQTxTXbA4oAR27Co6WikAlFLRigAHNFHekoGFLRRQIKKKKACkNL2pKBhS0lLQJDJZY4InmmkSKKNS7u5wqqBkknsBXyX8Z/i7P8QdSbSNJleLw5avxjg3jj+Nv9n+6PxPPTrP2kPilJLO/gbRpsIuDqUqH7x6iHPoOrfgOxrwhAqKBngck1vTh1ZEn0FkcQoMfe7CqbklWPfBpWkMjlj3pD0IrYkrWH+rI9DVqqFvJ5EzRt0PFXs4oAWikzSgE9BnvxQMWkoGScDmkzQIWiikoACQKAc0jDNISIwS3GOtAEN62fLjHVjU5Ycc1SiLXE5lI+UdKs0ASg0YzTVJp1AHW/Df4jar8NtcW/si09nKQt3ZM2EnT+jDsf6V9m+GvEem+LdFttZ0mcTWlyuVPdD3Vh2YHgivgbNemfBD4pSeANfFlfyk6FqDhbhSeLd+glH06N6j6CsqkL6oqLPsCkoVldQ6MGVhkMDkEeooNc5YtFIKXtQIKSlJpKBi0UUUCCjpSZpaBhSdaWigAp6Njg1Hml60ATBuaUimKQR70/tTASjIoIzQBimAopKKKAEIpaOlGaQAKKBS0AJRRRQAeuaKKKAAkAc1CTk0+Ru1R0mAZooooGLRmijFAxKKWigkKSiloGkFFFFAg7UlLRQMSuU+KHjiL4f+Db3WDta6I8mzjP/LSZvu/gOWPsK6yvlH9pTxm3iDxqnh+3kzZ6MPLYA8NOwBc/gNq/gaqEbsmWh5TLPNcyTXl1K8txO7O0jHLOxOST9TTJnwNo9AKYz7pFA+6pAFE5/fNXWZkZO2jdTeprT07QptQwyFindkQnH4nA/WplNRV2XCDm7RMS5tjIS6dfT1qxYJHOAk8rRN03FCw/HHNd7Y+Hba3QeazSt6FEH8h/WtWOGOIAIiqB6CuKeNW0UehTy6T1kzjbPw1cyqPntpoz0OWUj6HbxV1PCjIQW2tjoUbY6/j0P6V1JOaTrXK8VNnZHBU0jm7nwo0qebC6LcJ8ytjAk/3h2PuODWRd6FKkheONljkjdgp6xuoyUP5HHqK7ymSKHUqehGKcMVNbhUwUJbHm1tYT3dx5MSnoCzHooIB5/Oty08JS3GXlPkxqMKp+8/ufT/P1rp7aygtQRFGFycn1JqxVzxkn8OhnSwEF8epyUvh3yiY7OCS4mPWWX5Io/oDyx96Y/geR4cz3QLdSqDP6kjNdeRSrWf1qotmafUqT3R57f6RBYEKbgAAfcVSzH+QH51mEAn5a9VbDcEA/WqF9pS3Sny55bcn/AJ5gf4f1renjekjmq5f1izzshlOCpU+9LitXUtBlsi0jG4deu4w5H5gmsqu+E1JXR5k6bg7MDTiPkUjvkUlOfiNB9TVkH05+zd8SDrOjnwpqlwXvbEf6G7nmSHsmfVece30r22vhHwL4gbwz4psdQE5gVZAjyj/lmCR8+O+04bHcAjvX3BoeqjWdMiuygjl5jmjBz5cqnDr9AQcHuMHvXNVjZ3LTuX6KKKzKEoFLSUALxRRSZoAXHNHQ0maWgAooooAKTNLSUAOU4OalznkVCOaehxxQgH0d6KKYBRRRQAdaD0pDkUoOaAAdKOBQOlFABmil4pKBBzmkY7RS1G5ycelAxtB5oopAJRQRRQMKWgGigLhRRRQIKKKMUAJRilpKBhilopKBGb4m1yHwz4e1LWrj/V2Nu85H94gcD8TgfjXwXe3lxqF7c3905kuLmRppGJ6uxJJ/MmvqH9pjxSLHwIdIgf8AeX97HBIQf4UHmMP/AEX+dfLNdFJaXIkxoBxTpDl8jvSGn29vJdTCNNo4yzNwFHck+laN21Eld2Rc0aya7uAkNsLiUckycRoPU4613NnZmBVMkrTSAYyeFX2VRwBUej2MOn2KRwqfmG5mYYZz6n/CrwryMRX55abHvYXDKnG73DFGKUUd65TsEpelFJQAuaSijpQAYopc0lABS0lFAC9KQigHNFAENxbLOu0NJG2OHRsEf5964vXtNu7KTdcpHMjH5biNdpPswHGa7qobqAXFvJEyK4YYKt0NdFGs4M5sRh1Uj5nmYOaVyDjHQDFWdQsGtJWaPcYSxAJ6qf7rehFU8mvZjJNXR8/KLi7MdjcCK+r/AII+KJL7TdJeV8pqtq0Eme17agI34vD5bfWM+tfJ/vXsnwN18xeHdetN2ZtEuLfX7cd9iHZOB9Y8j8aioroIvU+qqKQMrgMhDKwypHcdqWuYsSiiloAWkIopKBhilFJmloEFJS0UAFJRmjNACg0d6SloAlU5FLzmo0ODUlO4BRRS5oATPrQKXikoAB0peKQUtABSUtJQAjHAJqKnOcnHam0hiUtFFAgooooAOKOKKKACkNLSGgAFLSCloAKKCKKBhUVzcxWVrNdXDbYYI2lkb0VRkn8hUlc98QHY+Frm1Q4a/lgsR9JpUjb/AMdZqELzPm/9oy/mfVfDGnznEv8AZ8mozp6S3EhYj8AoH0FeS16J+0xf+b8XrpAfktba3hA9Bs3Y/wDH687rrhsZsa3HJ6Vu+F7X+0rjLJttYCGYf89H7Z9cdcViCNpnEa4ye5OAPcmu78NwJFpy+UMRfwHGC/q5+p6ewFc+KqcsNDrwVLnqa7GtnmlpKK8c98Wig0UAJRS0UAJRRS4oASilpKACilxSGgBBS0UCgAooNFMDl/F9lLCv9oWw4bCTr2PoSP0/KuSyW5xj2r02/QyWUyBBJ8pyh/jHcflXnVzAsb7oX8yFvut3HsR2Nepg6l48rPEx9LllzLqQgcYr0X9nq4jHxPj0yc/uNWsLmwkB6EMhb/2WvOt3NbXwy1RtN+Jfh69ViAup26E+zOFP6E12S2OA+0/h9eSX3gnRZZiTMlqsEpPXfH+7b9UNdDXL/DsGLR9QtT/y7axqEQHoPtDsP/Qq6iuN7mgUCiigYUhpRRQAlLSUtAg4oopKACl4pKWgAooooAKlQ7hUVOjODj1oQElFFFMAoooPSgBB0paB0ooAKDwCaKbIeMUAR0UlLSASloooASiiigApaKKACiiigYUlLRQIKTNKaKBhXLePn2w+H07PrtmD+DM38wK6muQ+Jzm30PTL7OFs9a0+Zz6L56of/Q6a3E9j5P8A2g3Mvxd8Rgg5V4cfQQoK4u0k8yEc8jg13n7RUP2b4za5vGFcQMfoYUFebxu1tKc9O/uK6o7IzZtWNqLuVvMcxwIN8r+ij+p6CvQ7FSlrECmz5QQn90dh+ArgtBt5dcuordNy2sLCWXAwD9fUnpXofNedjZXaievl0PdchRQaMYorgPTCiiimAUtJS0gCigmkosAUuaTFFAC0hNFBoAKWkooAKKKKYAV3KVyRkYyO1ef63aCGZ54xgM5WVR/yzk7j6HqK9ArjfF1lLp10dShJME42zLjIDe49DXVg52nY4cfC8L9jmJpPKjLfgPrUvhqQweINGkHX7fA35SLVCWU3MoA4XsPStXwlCLrxjoUC8q2oWyf+RVr1nseEfcPgJhJF4hcfdOv32PwcA/qDXUVyfwxJl8LG8P8Ay/ahfXY/3XuZCP0xXWVyPc1QmaWkpaQXCkPSlooAaKdSUooAOKSlooATFLRSCgLC4ooooASloooETDpRTYzxin0xiUHpQTRigAHSlpopTmgAqJzlqlJwM1DQwEpaKKQBRRRQAlFLSUAgpaOKOKAEooxRQAtFJRQMWiikoAWuc+I2kS674D13T7fP2iSzd4cdfMT50/8AHlFdH2o6ds0IVj4q/aDv4td8WaT4ih/1es6JaXef9rDKw/Arj8K8xEjoODkD1Ga9T+O+kNoerLorLtTSrmZbT3s5z50QHsrmZfwFeWxLvkRfVgP1rrj8Jn1PVPDemrp2kwLgebIokkOOSSM4/DpWnSqAqgDoBisvXdbi0aEAASXMg/dx/wBT7V4b5qk/Nn0qcaUFfZF27vbeyj8y5mSJfVj1+nrWPJ4z02NiES4kHqFAB/M1z40XWtal+0zI3zfxzHaMew9Pwq0PBF7jP2m3z6fN/hXVGjSj8ctTjlXrz1px0NdPGmmsPmS4T6qD/I1cg8RaVcAbb2NSez5X+dcnP4Q1WIZWOOYf7Dj+uKy7i0uLRttxBJEf9tcVaw9KXwszeKrw+OJ6ekscq743V19VORTs8V5ha3c1pIHhkdCDn5TjNdJpfiyRWSO7IdTkFscj0P8AP9KxqYWUdVqb0sbGWktDq6UUg5orkO4Wg0dKDQAlIxCgknAHc1ga74lawmNrbhfMXO5jzjjj9T+lcre6nc37Dzp5JAB0J4/KumnhpT1ehx1sXGDstWd3ca5p1scSXkQI7Kdx/SqcvjDS4/utPJ/upj+ZriIoZJ2CxRvI3ooya04PCmqzjPkLED/z0YD9Otb/AFanH4mc31utP4InQL4105iAYrlR67Qf61qWOrWWoj/Rp1dh1Q8MPwNcqvgi9I5ubYH0+b/CoJ/C2r2Z8yJFlK8gwv8AMPw4NS6VF6RkaRr4iOso3R3maiuraO9t5LeUZSRSD/jWJ4e8QNdN9gv8pdLwpYY3+x963+nNcsoSpyszshUjUjdHj14kttcy28mA0bFGwMZINa3gmf7J4p027xu+yym5A9TGpcD81FQ+K02eIb0dmcN+YBrf+DegHxL8StD08jMJnE03/XNPnb89uPxr2oyvC585UjyzcT7X8I6R/YHhXSNKP3rSziib3YKNx/PNa1LnJzRXMUFFJRigBeKKMUUAJQKKUUAFFFFABRSd6WgA60UZxSUALRRRQA5DhqkqHOKm7U0AUUUUAA6UULS0AMc4Wo6fIegplIApKWkoAWiikoHYKKWigQlFLS0ANzilpCKBxQMWkpaSgQUtJS0FBRRXD/FvxRP4c8NrFZStFeX7mFHU4KIBliPfoPxqZS5VdjhBykorqeeftT+GrDXNAg12yu7RtT0Y7LiBZVMj27Eds5+Vjn6M1fLlsM3EP++v869iI3bs8luuec/WvNvE1lFpfiFlhQJG2yQKOgz1/XNVh8Rz3i0b4jCeySknc9IyaqW2kQx3T304E925zvYcIOwUdsVcJyc0ua8xSa2PZcVK1w5oAqre6gtnatcKjXCgbiIjk7e5rltQ8dWUUo2zSXkbDlLcmMIfqRk1UKUp7IidaEPiZ2nTqQKZLCJEKuqup7MMivPG8e2+75NEhK+rzEn88Vf07xrpUzhZUutNc/xI29PxH/1q0eGqLWxksZSlpc2r3wzp10Dth+zv/ei4/TpWQ3g25V8RzxyLngn5SPrXRQ3ZlVGZ45Y5OY54jlH/AMDVhHNJV6kdLlSoUp62LIG0AegpRTVORmlrBnSLSUppKAOU1fwvc32pz3CvGscjZBY9Bgdvzq1p/hWxtiDMGuX/ANvhfyFbjtuNQySuhCxIHkPPJwFHqT6Vs682uW5z/V6abk0WIYI4YwsMSRr6KuBTsjOMjP1rktV8X6XZSNHJPPqMo4KQHZED6Z7/AK1jt48ttx26FDt95jn+VUsPUlrYl4qlHS56PilxXB2Xju1eWKNVmsEJ+d3cyoB6AYzXWaXrEeqqzwKzQr8omwQkh77c88VE6M4bo0p4iE9Isdqmj22qqDICkycpMnDofrVmJZFiUSsGcABmAwCfWnq6yJvRgynoQcijNRzO1mXypO6PMfGAz4iu/wDgP/oIr2b9lHTtOsr7WPEup3dpbFUWxtfPlVCxbDSEZPoEH4mvIPENuLrxdJAekksaH8Qor0KG3itYlgiRUjQYVQOAK9GpW9nTiu6PIhhfbVJO9rM+vkZXUMrBlYZBByCKdXjvwP8AFM7XM/hy6lZ4jGZrXcc7CPvKPbBzj2NexUoS5lcwrU3TlysKQ0pozVmQgpaOKKB3CkpaKBABRR0ooATFLRRQAn4UtAo/GgAooooAKlT7oqKnxk0IB9FJk5pT0pgIvSlAoHSigCOT71NpX5Y0lIAooooAKKKKAuFJS0UAJS0UEUDEooxRQIKKWigApKWigArxX9oKeRb/AEtR91LaVwPfcP8AAV7TXj3x+td0+jXBHytHLEfzU/1NZVvgZ04P+KjxJIri0UTByzHl1PeuZ8aRLcalp9ypysyBPxDf/XrtpmWNGkf7qjJrjfEH79bWRVAVLlTgfw5P/wBYVhh5e/c9HFQvTsdqRg4Has/WL680yD7Tb2RvIl/1kaHEi/7Q9RWiRgmgcVgnZ3Z1STasnY81tbbVvH+vf2Z4fsJImuOZIkkITA6ySdgPw/M16zqPwO0r4ZfD/UPFWtQrq9/BGqwrPlYPNchVxH1YAnPzdcdKg8O+IJ/BHiO31/T9PF0wBjurYbVFxETzyejDqD6ivaPGF1pPxu+FerWfhi9S6u9iTrat8s8cqMGEboeVJwR6HPBNerRqRlH3TwsTSlCfvHzz8UvhFoXgX4e6D4nsPEqahf6k0Ylt/k2Sb0LFogvICkYOfUdOleSQyCZipUA+1auraLPNIPLUrLHlHjf5SpB6c9DntT9H8PspdrgbpmG2OJfmJJ+nf6Vq6kbXMlTlzW6HW6P4a1nRfClp4s09ZdR0K43Jf2+357Z1bazgd14zkdOh9a6KFo5okmhYPHIoZWHQg96+jvhL4Fbwt8L9M0LVYB57o9xcxuP9W8hLFfqAQD9DXh3i/wAK2ng3xTfaTpkscumsRcW4RsiDd96L2weQPRsdq48VTVudbndgarvyPYyox8tOJxSDijFcB6wvag/dNKKQ0gIghbjmqNr4c1fx699DprNZ6FYK731+FyZSgyyIO+APp6+h1IbKbU7i30+CXyWupFiabOPJQ/ef6hc498V9O6N4O0jTPCj+H9MijisZbVrXdHz8rKVJz365967cLTT95nnY+tKKUV1PknTfgvpWofBS++IX/CReVe2/mOtmwXywEfaI2PXzGHIx6jjvXkcc+9grKOeOK6nxN4Q1DQ9Qu9DvA8F3ZTFHjfIViOjfQjBB9DWVpugTLcLLdBQichQc7j/hXf7SNtTzPZS5tD134TfDHR/iz4Q1CGeyW31TSpVjF1aHZI8bAlSy/dcghh68DmuC8aeCPEHww1MWmoeZPp0j/u5FZkinA/hYA/K3qD+or6N/Zx0q28BeA9U8T6/cw6XaanOrxSXThB5KAhW567izYHcY9a5T4m/EO3+JmsW8dhZyLoVixaKWWMK15LjG9lPIQDO0EZOSTjpUTqKMLyLp05TqcsDz3w7rt7rKIU0tbOzUAeYzcHHZBgfn0Fb/ACKUDaABwPSivJnJN3Sse7Ti4qzdziZ7Xz/H6r2DLKfwTP8ASuldZdSc4YpbqcA/3j61gXquni28lXgCFVz9QP6V09hOtxbIVAXb8pA7VvWlpH0Rz4eNnL1Z1nwfeWHxzpKM2WEkkZPqNjV9MV85fCO1M3j/AE4gcR+ZKfwQj+or6NrTD/CcWO+NegUhFLSZrc4QFL2pKXtQUFFJRQIWiiigBKBS0YoAKKSigBaKKKBBTozzTadH96hDHk4NL2oIzQelMBB0paB0oPSgCE9TRRSUgCilooGJS0UUCCiiigYUlLRxQFxKKMUtAgooooGhKWiigAxxXnvxu003nhGO7VctZ3KuT6KwKn9StehVR1zS49b0a902XhbqFo8/3SRwfwODUzV00XSnyTUj5H1YkWEmPUfzrCitDfQzxgZZU3L/ALwOR/Kum1Cykhe5sbhdk0bNE4PZgcH9RWHpcn2W9Mco27vkOexrhi7HuSSl6G8Du5NFKOlGKyNhKhFpEl2LyPzIbofduIpGjkX6MpBA/GpqDVKTWwnFPRoy9Q8Ppql5Je3V9fyzy8vI8gdnPqSQST7mrGiaWvh+/j1CxuLhbqL/AFcrFSUPqOOD79aujpRVe1n3M/Yw7Ghe+Ita1Fdt7q1/cqe0twzD8s1nGlNJUNt7lqKWyEpQKMUUhi0lFLQMbjNWrTU7/Tzmzvrq2P8A0xlZP5Gq1FNNoTSe4zxEJ/Fc0U+r3t1czxLsWVnBfb6FiMkfWsePwnbRyrILm6bacgErj8fl5rbpav2s+5n7GHYiu4DqMiS6hLcX0qY2SXUzSsmOm0sfl/DFSgAdvxooqJSct2XGEY/CrBSUppDSKMHUbQia6uyOXkUA/wCyFA/nmp9CZj5w7cUuuXACLbr95jub2Hap9KtmtrfLcO53Eelat3jqYpWloevfAfTDNreo6kw+W3txEp/2nOf5Kfzr2yuJ+EGhto/g2CaVds1+xuWz12nhR+Qz+NdtXZSjaKR4+Knz1W0HakIozijNaHOKBRQKKBoSilpKBBRS8UUAJRmlooAKMUUUAFJmlpKAFoX7wooBwRQBNkijtRRVAAoPQ0g6Up6GkBDSUtFIAopKKACil6UZoGwooooEFFFJQAtFFFA0FFFFAMKKSloEFFFFAjwf41eFm0zX11qCPFrqA+cjoswHP5jB/OvMLqwiuiGYFXH8S9a+tPEmgWvifRrnS7sYSUfK4HMbjow+hr5n8ReH77wxqcun6jEY5EOVf+GRezKe4NcVaDi+ZHsYOspx5JbozlOVH5Uuar2kvmiQjoHOPpVjFYWO5ahSdaDRQMdSZoFFIAzQWAIBPJ6UCoIW8y4nY/wMEX2GM/1piJ6VUZvuqT9BSCrkV3GiBWG0j070DKpjdeqMPqKbV5r+MKduWPpiqNABkZxnnriiq9+xjt2lU4aP5gasKcgH1oEGMUoopM4pDFNApN1GaAFNJ0FFR3DbIHb0FAmQCxha6a5cF3PIB6Cul8F+GpfFfiK101QfKJ8ydx/BEPvH+n1NYthDLqMsNvaxvPPMQqRoMszegFfRvw38EL4O0gm4CNqV1hrhhzsHZAfQfqa2pQc3rsc2JrKnHTdnWRxJDGkUShI0UKqjoABgCnUUV3nhhRSUUAL3ooooASjmiloASloooASilooAKKSlzQAUUUUAFFFFAE3NFGc0UwAUHoaTFGDg5oAioxRRSAQ0ZooxzQMXrSdKO9KaBCZzS0lFAC0UUUAFFFFA0FJS0UAxtOopKBC0UUlABWfrfh3SfElp9k1ewgvIQcgSDlT6gjkfhWhS0hptao8S+Kfw40TwrottqGh2j24Nx5c+ZWfIKnb1JxyP1rzBa+nPHujnXPCGp2aLul8kyxD/AG0+Yfyx+NfMYrjrxs9D2MFUc4WfQUigCiiuc7QopssqQoXkbCjvRG5kXdtKjtnqaYh1Uru0mMhlt2xu++mcZPqKu0tCYM59/wC1raXdhGj9MkH8+RV2LVGZAWTnuDwRWkeRg1Vk0+FzkAofandMlJogfUiBlUA+pzVFp9Vu5f3Kqier5J/IdK1F02JTlize1WUVUUKqgAdhTukDTe5QjsriQqJ3xGMFlzyxH8hWiKKBUtlJWFzSUjkhcqAx9M4zUcFyk+QuQy9VPUUguSYpRS0UDErsPhd4TsfF+vT2upwNNZQ27SOocr8xIC8jn1P4Vx5Ne2/AnR/s2hXuquuGvJvLQ/7CD/4on8q1oxvI5sXU5Kbsdh4c8DeHfCZL6RpkUErDBmYl5Mem5skfhW9SUc13pJbHhtuTuwpaSlpiCkpeKKACiiigAo7ZopKAFoopDQAYpQKSl5oACPpRik5o5oAWkpcUUAFGMmigdaAJqKTk0opgAooFFAENFDfeNFIBDQDRRQCFooooHYKSiigBaSlooCwUUUUCCkpaCKAEpe1J3paBhRQaSgQtFIKWgAFfM3xC8Onwx4rvLNVxbyt59ue2xjnH4HI/CvpmuD+Lfg5vEmhC+tU3X2ngyKAOZI/4l/TI+nvWNaHNE6sHV5J2ezPAKKQ0VwnuENzF5skGRlVckj8OKpahqN3p8xla2ElkAAWQ/MD6kelamKbJGssbIwyrDBqotJ6iM6HxDZzqGQsQe4xUp1eHPCOfypvhuSDwv4jW6ltormwmBhvLWRAyyRk/eAP8QOD+Y717XoHwy+HPjvTZbzSxPE0UpikezldArYBHyOCOh7CuqNCEleJNStGi/wB5F27rY8TOsLniE4/3qeurQnhkdf1r2O8/ZosWJax8SXcYPRbi3V/1UrWNc/s264hP2XXNMmH/AE0R4z+m6m8N5BHGYWXWx5s+qwr91Xb9Ki/thc/6k/8AfVejxfs4+JGP77V9JiHqPMc/+gita0/ZpXIN74nYjuLe0A/VmP8AKhYbyG8XhY/aPJBrEeRmNx+ND63bICWDADqTgf1r3R/gb4G8O6bdajqs+oXMNtE0kklxPsRQB1wgH5V5F8QNS0PVorTRvDttDDpcLedM8UWxriTGFGSN20Anr1J9qHh4rWRNPEQrO1KLfn0Odi1qfUblUsIN0KN+8lc4GPQe9aIixerKOAUIb39KLO0S0gWNFC+oFWAK5JtX900cdR1LTelITUASW9vLeXMVtAheaZxGijuxOAK+qPD2jx+H9DstLiwVtolQkfxN/EfxOTXkPwU8INfai3iK6jP2e0JS2BH35cct9FB/M+1e3124eFldnkY6rzS5F0CkpaSug4ApaSloAKTFLSZoAKWgGlNACUgpaOlAWDiiiigAozRSCgBRRmikoAM0tJiloAKB1FFKn3hQMlooopkiDpS0DpRQOxG4wxptOk6im0gEpaSigaFozRxQaAE60UUtAhKWkpaAEpaKKAAUhNLQaBiUtFFAgpCc0tJQMBS0lLQIKAcUUUAeCfFfwC+gag+s6fETpl02XVRxbyHt7Ke3p09K8+xX1vdWtvfW0trdQpNBMpSSNxkMD2r5++Ifw5ufCFw13ah59Jkb5JOphJ/hf+h7/WuOtSt7yPWwmJ5lyT3OJBpaKK5zvK17beemV++vT39qTQ9e1Pw9eC60u+ns5xwTG2A3sR0I9jVvANVbizEjb0wrd/etadS2hvSqK3JPY9S8P/tCX9uqxa5pcV4BwZ7ZvLf8VPB/DFdfa/HjwfcKPOOoWreklvu/VSa+dCrIdrqQaQ8V1KrImeVYeeqVvQ+kJfjn4NjB2XF7N7JbEZ/PFc5rH7QQ2MuiaDK7dpbpuB/wFf8AGvG7a7t4F/eW4dv72ank1l5E2QxbT0yecU3VkTHKqEXezfqy34m8eeIfFsh/tW/doQci3j+SJf8AgI6/U5NZVjajPnMP90H+dOhsi53zH3x6/WrnSuapUvobTlGC5KashaSlFITXOc4hrc8F+ELvxlrKWUAKQJh7ifHESf4nsKi8MeFtR8Wamljp8ZPeWZvuRL6sf6d6+jvDHhiw8J6VHp9hHgD5pJT96V+7H/PFb0qTk7vY48ViVTXKty7pum2ukWEFhZRCK3gQJGo7D39z1zVoGiiu08XV6hSZpaSmIKWk7UtAwpMUtAoCwgpaKSgBTSGloNAIQUtIKXigBKKKBQAUtFFAgooooGFOj+9TafGOTQA45pR05oopgA6UUDpQSKAGydBUdSOMrUdJgFFFJQAtFGaOtAwopKKBC0UUlAWFopKWgYlKaSigBaKSloEFJS0UBuFFJS0AFFBooAKjnt4buCS3uIklhkUq8bjKsD2Ip9LQB4T8RPhVcaFJLqmiJJcabyzwjl7f/FffqO/rXnQIr676V498Xvh/pWl6XceJ7E/YzG6+fbqvyPuYLuUfwnJ5HSuSrR6xPTw2MvaEzyajrTUZWXcpBB6EUtcx6RDcW7ScpIVPoRkGqb21yv8AAjfStPNJTUmthqTWzMtba5J/1IH1P/16tw2rqMu4H+ygx+tWaKHJsbnJ7sBRRRSJA9K6Pwb4D1XxjdYtk8myRsTXbj5U9h/eb2/OmfDfRNP8Y+LU0i7kk8hIXnfyjjftI+XPbOeor6UsbG2020is7OCOC3hXakaDAUVvSo82r2OLFYr2fux3KXh3w5p3hfTUsNOh2Rry7nl5G/vMe5rUopK7Fpojx223di0h9qXpSA0wAUUtJQAtFFFABSZpaTFAAKdSClzQAhpKWmmgEOo4pKXFAwoopKBC0dqKKACiiigAqSMfLmoqmUYUUIGLiijHFFMAHSjApOcU7tQAnGKhqbio3ADUmA2iiigLhRRRQFwooooHYKKKKBBRSUtABSUtJQAtFFFAXCiiigApM0UUAGaXFFFACUtVtS1Kz0exnv8AULmK1tIFLyzSthUHua+f/F3x81vxhqkfhr4e200LXT+THdlf38xPdQeI175POOeKqEHLYTkke8XfiHS7LU4NKlvI21GfmO0j+eUr3YqOQo/vHA964343XsQ+HWpQscPI0QVe5xItX/hn8N7bwBpjtNOb/W73D3+oSEs8rddoJ52D9eprkfi5cDUdCuyxwssyRx+wByP5VpOnGMG2VQblUivM8GtrqW1bKN8p6qehrXt9QhuMDOx/7rVj3FvJbPtkH0PY1DjPWvKcUz3lJo6eisKHUbiEBQ+4ejc1YGtOB80Kk+zYqORlqaNWiss60ccQDPu1RPq1xIMDan0HNHIx86NWa4igGZGA9B3NZV5qD3GVTKR/Xk1UJZ2LMSzHuTSYPSrUUiHJs9C+BF5HZ+P42kYKr2sqbj0BO3/Cvo3Vtf07QbdLnVbhbS2ZwhuJAfKQnpubooPqcD3r5l+GVq1v4lgkl4aSORAvp8uefyr6R0SSLWNGe1vIo7hNpgmjkXcsiEdCD1GOK9HDQjKB4+Nuql/I14pY54klhkSWJxuV0YMrD1BHBp9fOXjDTvFf7P8ArH9r+FrmS48J3UvNlOTJFA5/5ZsP4c/wuMHsc9/W/hz8U9D+I1iGs3+y6ii5nsZGG9fUqf4l9+3cCqlScdTlUkzsqMUUVmUJS0Y5ooAKKKKADNHWk70tACGgClooAMUlKaSgBelJnJoFL0oAMUnIpd1JmgApaSloCwUUUUAAGTUxqOMAmnkYpoAycUtLxikzQAg4FO4IpB0oGO1ACFQO9MkHQ1IR3pGIxgUARUUUUgEpaKKACiiigdwoopKBC0lFFAC0UUlAC0UUlAB3paKKAA0lLRQAVBe31tplnPe3s6QW1uhkllc4VFAySamLAda+f/2i/iIJX/4Q+ykxDEFmv2U/ebqsf4cE+5HpVwg5MTdjz34v/Fu/+I2qLY2Xmw6LFIBbWo+9O2cB2A6sew7fWvcPgd8I18BaSNW1eJW8QXyfODz9kjPIjH+1/eP4dq87/Zv+G41jU38barAGtrVymnxuOGlHWT6L0Hv9K+l660klZGW5Xv5PJsLiQHBWNiPrivAviL4gguXj0i3cSNA++cg5CtjAX685Neu/FG9l034e63cwytDKtvtR1OCCWA4P418y2iFYF3csfmJ9Sa4cbV5VyLqell9HmftH0HzwJcIUkXI/lWPdadJb5YZeP1HUfWtyivMUmj13FM5rApBzW5cadDMc42N6rVN9IkH3JFP14q1NEODKGKXFXF0mc9WjH4mp4tHjHMshf2HAp8yFyszo4pJn2xqWPt2rUs9OWAh5CHk/RauRxJCuxFCj0FPxWbkaRhYt6NqJ0nVLa92lhC4ZlHUjuPyzX0D4D1K21BJZbSZZoJo1kR1784/PmvnE13nwFu57fxve6eJXFtNZvMIs/LuDLzj1612YKtyy5O5w4+hzR510PdNV0yz1rTrnTb+BLi0uYzHLE44ZT/nr2r4/8aeD9a+D/jRY7W4uIoGb7Rpl+hwWUH7pP94dCO/0NfZZ4rmviH4IsviB4XudHugqzEeZaz94JgPlb6diO4NeseIzI+EXxMi+IeilboJDrNoALqJeBIO0ij0Pcdj9RXeGvifwp4g1j4d+LRPsaHUNNmMVxA3SRQcOh9iP6GvszR9Zs9e0u11Owk8y2uolljb2PY+46H3Fc1WnZ3WxcZXWpcyaXvRRWJYYpMUvNGTmgBKMmlpKAAZpaM0UDCij3pM0AFLRRQITFGOaWkJoAKKXNFABRRRQA9BgU9eaMDAFA4pgDcUCjg0UAA6UEelA6UuOKAYZyKbinDmkIoAjbAam1I6jGajpDEopaKACiiigLBSUtFACGilooAKSlooEJS0UmaAFoFNLjt1pMn1rSNJslySFZwOOp9qaWY+1FFbRpRRLkzK8T65D4Z8P6hrE+ClpC0gB/iboq/iSB+NfGH2fUPGXiaCxDtLfardZkc8nLNlm/Dk/hX0F+0n4gaz8P6docbYN/MZpMf3I+g/76YflXDfs1eHBq3jDUNdmTdHp6CKIn++3U/gB/wCPVqtEQfR3h7RLXw3ollpFlGEgtIljUD2HJ+prRFIKdikM4P47OyfCnXSpIOyLn/tqlfO1jcLc2sci9wAR6Gvov45IX+FPiAekUbflKlfL2h3YgkELfdkAx7NXBjIXVz3srjejJ+Zv0UUV5h2iGig0UAFFFFACg0uabQTikAHk8V1HwOuzL8WRGp+VNNnU+5ypNcbf3YtLcuPvnhR710v7Oq7/AInMx5KabMSfqyiu3CQ97mIxEf3E5PsfUJoApT0o7V6x8ufOP7Tfg9dN1Wx8Y2kWEucW15tH8YHysfqOPwFbP7N3i8zQXvha5kBEQN3aZ/uk4dR+JDfia9N+JvhpPFfgfVtMKhneEvFns68qfzFfJnw78Ry+FvFGl6oxK/ZLgJOP+mZ+Vwf+Ak/lVLVCZ9r7iO9AfnmmghwCpyp5BHcUuOKylTTKUmiTr0pDTOnSnBsDmsZUWti1JC0pFJ24orJqxQuKTNLRigBM0UUtACUUtFAwoxRRQIKSlooAKcgBP0ptSIoC/WgAxzT+gpBR1pgHGKB0o4xR2oAB0paQUtAMaeDmlzmlxmjFADcA1EwxxUxqNx3pAMoopaACikooGFFLQRQAUUUUCCikoPAzQlfQLiMcD3po+ZeTQDnrTU4Zx2JyPyrrhTUTNyuOxRiloqyQpDS0h45oA+Zf2jdSNz45S23ZWyskXHoWy5/mK9E/Zq0pbL4eC82Ye9uZJCfUA7R/6CK8Z+M1w9z8Q/EDv/DKqD2ARRivpL4S2Cad8ONAgUYzaJIfq3P9apiR1tSKMimUoJqRnJ/FyAz/AAy8SRgZ/wBBdv8AvnB/pXx/Ccxow4OARX2l48h+1eB9fgAyz6dcAD38s18V2xzbx/7ormrbo+jyN+5JHSWF3LdwbgUZ14YdD9asedIPvQt+BzXPWV01pcLICdp4ceorplYMoZTkEZBHevLqw5WdtanyvTYasqydMg+h606gqD1FBrIyCkYhRljgUtIVBOSM/WgCP7QD9xHb9KTdM/8AAij3NTVnaxd+VH9nRvnf7xHZaqEeZ2RUYuTsZt9dG7mOSCqcLjp9a9K/Zrh3+PNTlx/qtNxn6yL/AIV5b0r2P9l633674luSPuW9vED9WY/+y16dGNmkh5ilDDSSPoUcrSUo6GkrtR8iLgMpU8gjBr4t8d6F/YfxA1/Sgu1GkaWMY7N8w/mRX2jXzH+0PYCw+Jmm3wGFvbUK3uVJH8mFOIme5fDLV21zwDoV9I2+VrRY5G9WT5D+q10+RXlf7O+oGfwRNYs3NnfTIv8AunDf+zfrXqdDGAzQDnrRSdaQC45pd4HBppOBQOgqZQUtxp2JOlLnIpobsaXFckouLszVO6E70tL2pKQxaKMUlAhaKKKBBRRSUDFAycVN7UyId6kpgJ2ooooEFFFFAAKCcUDpQcUDE3UtGKUUAFIRng0ZooAhIwcUlSSDPNMpAFFFFA0FBpKWgAooooFYKYTk4p2QKYSCa2ox1uRJgBg0n8Y96dTXJBU9s4/OuggdRRRQAVXvpJY7dmhiMrjHyA9RnmrGaMbulAHxx8V5TL468QylGUtdM21uo4HWvqf4eDPgXw+wHDWEJ/8AHBXzN8a7dYviRryAg75Efj1Ma17Z8MtVFz4K0T+zNas3uUtEjlsvPXzEZRjBQn2qmJHp4GKcpxWDY67ePcra3di/mn+4MH64Pb8a3QKkZBqkP2rTbuAjIlgeP81Ir4VsmPkeWfvRkqa+9EI6HpXwvqlmdP1vVbXbg217NER7BzWFZbHu5JK0pIjFa+jX3/LrIfdD/Ssdfm57U9SVYMDgjkEVyzgpKx9DOCmrHV5paq2F4LuEEn94vDD+tWhXnyTTszzpRadmIaKWk+vFIkiubhbWFpX7dB6n0rm5ZWmkaRzlm5NWNTvDdzYU/uk4X396qDNdtGnyq73O+jT5Vd7gfaveP2WoQ2l+JbzH+svIogfUKhP/ALNXgbnc2zpnqfavpb9mixEHw+uLnbg3Woyv+Cqq/wBDXXR+I4M4lahbzPV8YFJkU7rkVQ1XUG0yMP8AZnlB43A4VT710nyhdrwL9qG3Vbjw3d4wySvGT9cH/wBlr10ya5qYwALSM98bTj+deR/tG6SdO8MaZO0rTSfbgWZv9xqpA0Sfs7TzJNr9nHGXRLuKVmzgKGQg/wDoI/KvcxXhX7OEq/2/4miB5eC2kx9Cw/rXu1OW4lsHWk6UDOaXFSMYxJwPU4qSo35ljA92/TH9akoAKdnNNoU5JHpWVaN1cuD1sPoFJS1zGlwzRSUtAhM0tJS0AJSgZOKKegwM45oAeBgcUtIOKWmISilpKAEzzS008GnUDAUmMmlFGcUAAGKdTMkmnUAJRS4zTQDnFAARUbKVqbpTW+YY70rDIqSl6UUBYKKKKBhRRSUCEam4xzQ2dx4pR0rrpq0TGT1CobskW8hXqo3D8OamoIDAg9DxViGqdygjkHkU6oLI5tYh3UbD9Rx/SpmYKMkgAdz2oAyPFfirS/BmjS6tq8xjgQ7URRl5XPRFHcmvmnx18Z/EPiJ3SW9k0bT2z5dlZuRI6/8ATRxyfpwKq/Fv4hy+LPE11dpIX06xc22nxZ+U4ODJj1YjP0xXc/CT4LK8UWu+IYFuNQlAkVJxuS2B5Hy9C/16VS0FueO2WieIdaHmaZ4e1G4jbkSeW2G99xwD+dTXegeJdFjMmpeFbtYV5MnlE7ffcucfjX2PFoVoi7ERXYcF35x+HSrB0PT2jCNbr0xuBIb86LjsfL3gH4va14ZkUWN1JqdmAPN02+fc+3/plIeR9OR7V9K+D/GGleONGj1bSZS0THZJE/EkDjqjjsR+teU/F34GxX1tLr3hmMQalBmRo4wFE4HJyBxu9D37+tee/Cr4iHwj4jgvZW8u0vGW21OHoOuFlx6qevtkUbonY+tTx0r43+JVoNP+JPia3Ax/pzSj6OA39a+x1IbBBBB5BHevlX492YtPipqDAYFza2831+Xaf/Qa56y0PZyWVq7Xkeeg7Hx/C3T2PpT6CoYEHvTUJ5VvvD9feuY+qLFtcvayiROfUeorpIJUniWRDlWGa5XOKv6Xf/ZZPLc/un6/7J9axrU+ZXRhXpcyutzerL1e+2qbeM/Mfvn0HpVrUL5bOEEYLv8AdH9a55iWYsxJJ5JNZUad/eZjQpcz5mN60jNtGfwA9ad069qjU7zvI4H3R/Wus7WIFIUknk8mvrH4EWRsvhbogIwZllnP/ApGI/TFfJ87bInb0U19n/D6zOn+BvD9qRtMenQZHuUBP862o7nhZ3K1OMfM38DdxSsqupDAMCMEHoaRTwaUetdB82UGSSyPy7pLf06tH/iP1FeT/tM7ZPAti4IYfb0II/3Wr2ZhnkV41+01CsPgezdCV36lHlO2djnPtVIDm/2dlZfGWugdDYRZ/wC+q+gRnvXz7+ztJnxnrn/XnGP/AB6voPNOW4lsFGaKT6VIyNGL3UmOiKq/icn/AAqaqtkS3nS/35W/T5f6VaoAKAcGkNFJq6sA+lo7CiuI3QUUUlAC0UUUCFUbj7VLSKABxR0pgLRSBqWgBaTnNANLQA360tITS0AA6UYFAoIoAKXrSHFKpoAToM03PNL1NKcUAGM0YxQGpME0ANkGeRTKlK0x1IOe1IaY2iiigApCcc0tIwyKaV3YG7Dc5opMYpa7DASilopgVbIkSXMZ/glJ/AgH+prE+JWrNofgPW7+NtsiWrRoR1DP8gP/AI9WuzmDUJ/R4Q/4qSP8K4347bv+FYanj+/Bu+nmrTQM+c/h1oI8SePNF05kDwxubh1PQhBkA/jivse2t0tYFiQfKo/P3r5i/Z4iST4lKW6pYTMv1yo/rX1FTYlsZMjtp2srIT/o93hGJ/hbtW304rP1Sy+3WUkQHz43J/vCk0a+N9Yoz/62P5HHuO9SM0COOK+QPjN4Xi8K/EbUra3QJa3yrfRKOi787h/30Gr6/Br5t/ahtjF4v0O6xxNYPHn12yE/+zU1uJns/wAJ9bPiH4e6JeyNulWD7PISeS0ZKZP/AHyD+NeO/tMWQi8aaTdgf8fGnlCfdJD/APFV3P7N9153w9khz/qL+VfpkK39a5/9qC0/d+Gr4DpJcQE/VVYfyNZ1loz0cqlbExPC802RS3K/eHT/AApelL1rjPsRqtuGQKbJLsUADLNwo9TSyfu8v2/i/wAaZChZvOf7xGAP7ooE30JgX2IJHLlRjJ7e1BoNNZjjA+8ent70DtZCH942wdB94/0p54pqjYMCloAa8RnXyhyZCEH4nH9a+57aMWtrBbqMCKNYwPoAP6V8X+E7P+0fFmh2eMibULdSPbzAT+gNfajHLE+vNdFBHzeeS9+MRyYxmn9RUQIp44FbHhCk4rxb9qC5RfCmj2xPzy6iGA9ljb/EV7QcetfOH7SOovqF1oYU/uRPKE99oUf+zU0BL+zhEZPFGvTdhbxL+pr6CxivBv2ZELXniKfHH7pAfzP9a95zTYBTZHEUbyHoqlvypao6pIRZTpnl9qL/AMC4/wAaQE+noVsod3UoGP1PJ/nVmkUBVCjsMUtABSd6CaKAHKSRS4pFPOKdXJUVpGsdhKWkoqBi09E4yaRFJOe1SUIBMYp2c0U08dKYC9KAc0dRQBigBQMUh4pc0YoATHOaKOlFAAKWkHSloAMZoAxQKDzQAH2ppyaASKXdQAdKM+lITninAYoAQnBopcc5ozQBC67T7UlTEZ61E6FTxyKQxKYxOQKdTW5atKS94iT0CiiiukzCiiigDK1fet3Zsh5djEfoSKxPi7afbfhr4gjxkrbeaP8AgLK39K2dWkxqenxj+9u/UVd1LT7fV9OudPvE8y2uomhlXOMqwwefoaoD5X+BF4LT4raSu7AuILiHHr+7JH6rX1lXh3w8+Hei+FfiWrRia4lhF1HA077jEV4BHbO0nt3r3GnISCsf/kFa0G6W95wfQP8A5/nWxVLVrL7bZui/6xfmT6ipKRoV4t+0x4W1XWNM0bV9NtPtS6fJJHcKrAOFk2hSAeoyMfiK9d0m8+3WKSE/vF+Vx7isrx+MeEr1u6mJvykWmtxM4n9nHRtS0vwZeS6hbm3W7vWkhRmBbCqEJIHTlT+VJ+0ra+b4HsLnHNtqMfPoGR1/niux+G8nmeGtp/5Z3U6f+Pk/1rI+PFobv4W6uQMtAYZx7bZVz+hNRU1TOjBy5a0H5o+VTRQaM8YriPuQpqfIdv8ACent7U6kZQwIPQ0AxWYKCTTUBGSfvHr7e1Cq2QWIOOn+NOoAKKKBSA7T4NWf234naCuMiKV5j/wGNj/PFfWhr5m/Z2tftHxCabGRbWMr/Qkqv9TX00a6qPwnymcyvXt2QgFOzmkHSjrWp5Jn67e/ZLIxxn99P8igdfc189/tFKttrvhzS1xmCzkmf3Z3xn/xyvd4iNU1p7j70Fr8qehPr/n2r50+P98br4pTRk8WllDEPxBb/wBmqkDO5/Zlttmi6xc4/wBZd7c/RV/+vXtVeV/s6Wxi8CCYjHnzu/1+Yj+leqUMArL1XL6hp8f8LSZP/AeR/OtSsjXGKXmnOO0v9RSGjXFLQBjiigQlFLSGgAHUVJUdPzmsKy2ZcApyqWPtQqFj7VKBj6VgaABS0hPOKBxTEBJFBGaU0lAABikA5paKAFozRQaBARmkoHNB6UDAUtIOlByaAF4pCcUYIFGcigAzS0lFAgAwaUUUUAJznikOQaXvS9aBiBqXOaTbR0oAjdMcjpUKnNWs1C8XOV/KtaUknqTJXGUUUVuZhRRRQBhai/8AxUFov90IP1NbvFc1eP5viRf9mRF/lXSEYqmB5rfEaX8TIJWOFkvF/KWLb/6EK9LrzT4oI1lqtnqScERrJkf3opA38mr0ZXEqLIkjFXAYHjoelDEiWimAMf42/IUu0/32/SkMyoW/svWmiPEF5yvoH/z/ADpnjvB8Iann/nmp/wDH1qxrNk11ZMVJMsR3oe+RWV4pvhqHgG+mz87IiOPRt6g0xvYT4asDoVyB/DfSj9Fq38RLL+0fAXiG1AyX0+bA9whI/UVT+GkZj0G5P96+mP8AIf0rp763F3YXVuRkSwvGR65Uj+tKQ4S5ZJnw2h3IreozS0yJSiBT1X5T+HFPrhPvk7q4UUUUhhQKKKAA0CijtQDPav2Y7TOq6/eEfcghhB/3mYn/ANBFe/npXjX7M1ps8P63d4/1t4kYP+6mf/Zq9mYiuukvdR8ZmUubEyEBxWdrt+bKxYJ/rpf3aAdee9aS/SvEvi/8S5NM1ldJ0y48m4CZe4QbmgT1X/bYg4PYDPpVOSjqzmo0ZVZqETvdQ8Z+FvAdrHa6zrNtbXJG9oVzJKSf9hQT+YryPxPo/hH4gajr/iq0S8kSSGLy5meSImTAT7p6DjpivPtXu9IsCv2u0uL+/lHm+SJip5/jmc5JJ9Op9ajtPH2q2do9lHp9ktnJjfDE7KcDpyc1Cq6+8d1TL7x/dXb79PkfSvwfTSYfBdrbaPfw31vANjOjhiG77sdDnPWu1618ieDrmXSlOseHL+a1uYXCuC2GX/YlUH51Pr+WDX0r4G8S2vjXw/FqcQkhmDGG5g81j5Mq/eXPccgg9wRVRqczsc+IwjpJTTuvyfZnT1heJn8v7K3cMx/lWuiCIjBc5OOWJ/nWN4rORbD/AHv6VojlRvI4dQ3YjNOqvYtvsoG9Y1/lU9IQtJmiigAqSJCw56UqR55b8ql6VhVknoi4rqA4pM56UvtRisSxADmnCkpaAEIzSc07OKSgBOaWilFABmk60tJQAuKSl7UhoABS0gpCSTQAvegrQKXNAhMUHPalJpKBic5o6HOaXFBGRQAUuRTce9AFADqRjS9qQ9KAEFLikHApQ1ADXjDdODUDAqcEVa60xl3cEVpCo1oyXG5BRTmhZemSKYTiuhNPYhqxyjyB9bLj/n4H866tuRXFLIRdiXP/AC03frXankVTBnIfEnTxcaPBcMSRDMFb2VxtP6lau+B7qTUPC9i7TuJIUNvIMDhkO309APzrV13Tv7W0e7sehniKqfRuqn8wK434YakRcX+myDY0gF2insfuyD8CBT6EndiJx/y2c/gP8KeFYH7xP5U40lSMDXE+MAdN0+6shnyb2WIoPQ7wSP0P6V21cZ8SrmOK209GxuEzzfRUQ5/Uimg6Gl8O/wDkWI3xjzbid/8AyIw/pXUL94Vg+B0C+E9LUfeEAL+zHk/qa3cbaTA+INYtvset6pa4x5F7PF+UjCqlbfjqLyPHniaL+7qc5/Ns/wBaxK4XufeUHenF+QUUUUjUKWjFJSGFKKSgUxH01+ztbiL4eebjHn307fXG1f8A2WvUMA8k1518A1x8LNKbH35Lh/r++b/CvQxk12R2R8Ni3etN+bKWt3v2Kxby2/eyny4/XJr5A1i7k1PxtqEk+S0l+6c9lVtoH5KK+siv9pa6SeYLLj2L/wCf5V8n/ELTpvDfjrXLbaQ8N49xF/tI58xT+Rx+FTV2R15cruaW9tDmvNe7kmu5TmSeRpGJ+vA/AcVdtbEvhpAVX07mmR+RBKbwAtYTMZI5AMiFiclG9MHOKvG/tAu43UOO2GBJ/AVyyvc93DyjKmmiNQLTUlEY2pdQSRyqO4AyD+Feq/sz6i/9r65pZkfy5beO6UA4G5W2k/iGH5V49qdwbaJ7mUGOeVDDbwt95VPV2HbPAA9K9h/Zj0qQ6rrOqFT5UVvHaKfVidzflhfzramtUedi5RcKjW2n3n0AsQBzlj9WJrA8Un57Yezf0roq53xQf31uP9kn9a6keCtzT0V/M0u3PopX8jirtZ3hxt2mqO6uw/rWssJb2FS2luFrsjCljgDNTJEF5PJp6rt4Ap2KwlUb2LUbCYpGpS1NrIocCKXimgU6gApCcUUUwDrSc0o5ooAKAaKKACkJwadxTT0pAAY0tIo70tAAOlB4oFBGaAAHNHWkxzThQAneig9cCjFACikNLRQA3NLSYyaXFAC9qaadSN6UAIBS4FFAHNACdDThRikoAXpUM0QlUj7rEEZqTJzSgetUm1sBxN9ot5YZZk8yIf8ALRBx+PpXUxPvhRwchlBB/Crp9KjMKkYA2/StlVvuS49iHNeY68reD/GiajGD5Ejm5wO8bcSr+B+b8RXqDxso6ZHtWB4u8Pf8JBpLCDb9styZICehbHKE+jDj8vStYtPYzaNuORJo1ljYPG4DKw6EHoadXA/D/wAVokaaJfEw7GKW7ScbTnmJs9GB6evSu+PBxQAV5p45J13xVDpMJycR2fHYud0h/BAK7jX9cg0Gwe4kw8uCIogeXb/D1NcJ4IiijkvfGOtXUcFjbh9lxOdqu7H55Mnt/CPXnFMTO40oDTNRn04cQuPMhHt3H+fStwMcV4f4r+O9st/FJodhHJFatuFxeOYzP6qiAZAPq2PpXqngvxZZ+NfDtrrVkpjWXKyRMcmKQcMpPt69wRQ0O9z5T+Jo8v4n+KU/6fS35gGudrpvi0vl/FvxKv8AemVvzRDXM9K4Zbn3GDd6MfQKKKKk6QzS0lFIYUjsFQn0GaDUdy2IJCOu2gluyPrP4Gx+X8J/D4xjMUjfnK5rsNTvRp9jLP8AxKMKPVj0rmfg7EYvhd4aU97JW/Mk/wBa2NQX+0NWt7TrFAPOk+vYV3R2PhK+tST82TaLaNaWSh+ZZD5jk+przP44/C+bxVDFrmkhBqdsmxlbhZ0/use3sex9jXrWMUNhlKkAg9Qe9NpNWYqdWVOSnHc+DJ11Tw3qEsCC4spwf3ltKuGH/AT1HuOKT/hIdTQkokELnrJHAqt+YFfZniH4eaL4iQLd2VrOB0S4iDqv0zyPwrmofgN4UinEv9i6aTnPzK7j/vknFZ+zfRne8ZSlrKOp8y+FfC2seNtVVLRHlAYebdOCY4fcnufRRya+wvh74QtvBfh2DTrdSDjc7N9526lm9ycn9O1XtH8MWGiIiW8EYCfcVECon0UcCtlY2IzjA96aio6s5q+JdX3UrIaayNU0i51S/XywEjSMAyN0zk9PWt1YlHPX61IOKl1exgo9ylpmmR6ZB5SMzkncWb19vSroNLimkGsW77ljs0hFN5zTqAExQOKdSEZoAMilwMU0CndqAEOKTGaXrQMUAFFFFABQQaOc0bqACg0ZzQRmgBMilpOKWkACjAxSDpSigAooooAKWkooAU0lFFAADRRRQAooNJRQITPNLRiigYEmjJooGaAADnNKaSigAoopDQCF6VUvNLt7z5m8yKTtJC5RvzHX8c1bzS00wOL8Y/D1NdIu9MmjtNQOBK0i5juFH98Dv6Ec1z1xN468I27I8NxqECrhWjj+0bPofvD8a9VxikPHJrRVWiXBHz1PqGsa9d7ry11Bwx+dfJkaSQf3eB8o+lb+u6B408b6C+kR6emnWRRRGtwRAi7SCoCDLdQOtezHD9efrTTEp7EVoqxLpny5p/7O3jm/QyXc2k6ac42yzGVj7/ICP1r2z4UeEV8D+G5dEe5+03SXLzTy4wrswGCo7DAA/Cu18nPANVfsUseorcIAUdCkvPpyp/mKr2ifUXJY+SfjaPJ+MOtf7ZiP5wpXK16h8bPhv4u1X4kXus6Z4fvr2wmWHbNAocEiNQeAc9R6Vwl14U8QWOftWhapDj+/auP6VyT3PscBVg6UVdbIyqKle0uY877adMf3oyP6VEQV+8CPqKk77oKKBycCpFtbiT/VwTP/ALqE0hXSIjUF4cW7+/Fa1t4e1u7IFvo2pS56bLZz/StM/Cfx1qUYS28L6kST1kQRj/x4inYxq1qajrJH1D8NAtv8OPDgJwF02En/AL4BrU0mMukt24/eXLb/AKL2FU/DWiXtl4J0fSpkENxDZQQTqWB2EKAwyOvQit9bcIoAOABgAV1qaSPiaivJtdyOkzUywLnJyaf5aqeABSdVdBcjIAjN0FSCHj5j+VPHWlFQ6rY+VCKqr0FKelKaaTnis7lAOlOpnNOpALmjNJSHOaAHYpuDmlDUUAJkg0E4pcnNJ3oAUUvakooAKTvS0negBaWkooAKTApaKYABiiiigBpFOHSjFAFID//Z';document.querySelectorAll('img[data-av]').forEach(function(i){i.src=window.__AV});</script></body>
+</html>
